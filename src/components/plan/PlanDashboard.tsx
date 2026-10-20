@@ -14,8 +14,6 @@ import { Tabs, type TabId } from "./Tabs";
 import { TimelinePanel } from "./TimelinePanel";
 import { VendorsPanel } from "./VendorsPanel";
 
-/** Applies plan changes; returns an error message to show, or null on success. */
-
 function Loading() {
   return (
     <main id="main" className={`container ${styles.empty}`}>

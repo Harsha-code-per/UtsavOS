@@ -16,7 +16,7 @@ const STEPS = [
   },
   {
     title: "Run the day",
-    text: "Export the timeline to Google Calendar and share the run sheet with family.",
+    text: "Export the timeline to Google Calendar, with the day's run sheet ready to follow.",
   },
 ];
 
