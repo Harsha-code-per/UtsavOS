@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, daysUntil, scheduleMilestones } from "./timeline";
+import { addDays, daysUntil, scheduleMilestones, trustedToday } from "./timeline";
 
 describe("daysUntil", () => {
   it("counts whole calendar days between ISO dates", () => {
@@ -54,5 +54,18 @@ describe("scheduleMilestones", () => {
       { title: "Call caterer", daysBefore: 30 },
     ]);
     expect(ms.map((m) => m.id)).toEqual(["call-caterer", "call-caterer-2"]);
+  });
+});
+
+describe("trustedToday", () => {
+  const now = new Date("2026-10-20T20:30:00Z"); // 2am on 21 Oct in India
+
+  it("accepts the client's local date when it is within a day of the server's", () => {
+    expect(trustedToday("2026-10-21", now)).toBe("2026-10-21");
+  });
+
+  it("falls back to the server date for missing or implausible client dates", () => {
+    expect(trustedToday(undefined, now)).toBe("2026-10-20");
+    expect(trustedToday("2030-01-01", now)).toBe("2026-10-20");
   });
 });

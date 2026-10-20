@@ -44,3 +44,10 @@ export function scheduleMilestones(
   // Array.prototype.sort is stable, so same-day milestones keep the model's order.
   return milestones.sort((a, b) => a.due.localeCompare(b.due));
 }
+
+/** The client's local date (it may be a day ahead or behind UTC), if it is plausible. */
+export function trustedToday(clientToday: string | undefined, now: Date = new Date()): string {
+  const serverToday = now.toISOString().slice(0, 10);
+  if (clientToday && Math.abs(daysUntil(clientToday, serverToday)) <= 1) return clientToday;
+  return serverToday;
+}

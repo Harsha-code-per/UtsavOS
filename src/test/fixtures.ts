@@ -1,0 +1,32 @@
+import { buildPlan, fallbackDraft } from "@/lib/domain/plan";
+import type { Brief } from "@/lib/domain/schema";
+
+export const weddingBrief: Brief = {
+  type: "wedding",
+  name: "Ananya & Rohan",
+  date: "2027-02-14",
+  city: "Hyderabad",
+  guests: 300,
+  budget: 2_500_000,
+  currency: "INR",
+  vibe: "Marigold and moonlight",
+  traditions: ["Haldi", "Sangeet"],
+  diet: "Veg + non-veg",
+  language: "en",
+};
+
+export const weddingPlan = buildPlan(weddingBrief, fallbackDraft(weddingBrief), {
+  id: "plan-1",
+  today: "2026-10-20",
+  now: new Date("2026-10-20T08:00:00Z"),
+});
+
+let ip = 0;
+/** A JSON POST from a fresh client address, so rate limits don't leak between tests. */
+export function postJson(body: unknown, address = `198.51.100.${++ip % 250}`): Request {
+  return new Request("http://localhost/api", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-forwarded-for": address },
+    body: JSON.stringify(body),
+  });
+}
