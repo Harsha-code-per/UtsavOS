@@ -25,9 +25,16 @@ interface Recognition {
   start: () => void;
 }
 
+// The Web Speech API isn't in TypeScript's DOM types yet; Chrome and Safari still prefix it.
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => Recognition;
+    webkitSpeechRecognition?: new () => Recognition;
+  }
+}
+
 function createRecognition(): Recognition | null {
-  const w = window as unknown as Record<string, (new () => Recognition) | undefined>;
-  const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+  const Ctor = window.SpeechRecognition ?? window.webkitSpeechRecognition;
   return Ctor ? new Ctor() : null;
 }
 

@@ -127,7 +127,7 @@ CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `npm audit`, Pr
 - **Size and complexity budgets, enforced in CI.** At most 250 lines per file, 80 lines per function, cyclomatic complexity 10, nesting depth 3 and 3 parameters ([`eslint.config.mjs`](eslint.config.mjs)).
 - **Layered design.** `lib/domain` is pure and framework-free. Each kind of plan change is a typed entry in an exhaustive table ([`plan.ts`](src/lib/domain/plan.ts)), so adding one is a compile error until it is handled everywhere. UI components stay small and keep logic in hooks (`use*.ts`) or pure modules such as [`brief-form.ts`](src/components/brief/brief-form.ts).
 - **No unchecked assumptions** in application code: no `any`, no non-null assertions, and model output is validated before use.
-- **Coverage floors.** Lines 85%, statements 85%, functions 85% and branches 75%, enforced by Vitest (currently about 93% of lines). Code duplication is under 0.1% (jscpd).
+- **Coverage floors.** Lines, statements and functions 90%, branches 80%, enforced by Vitest (currently about 96% of lines). Code duplication is under 0.1% (jscpd).
 
 ## Run it locally
 

@@ -19,7 +19,13 @@ beforeEach(() => {
     apply: vi.fn(),
     saveState: "device",
   });
-  vi.mocked(useAuth).mockReturnValue({ status: "signedOut" } as ReturnType<typeof useAuth>);
+  vi.mocked(useAuth).mockReturnValue({
+    status: "signedOut",
+    user: null,
+    error: null,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  });
 });
 
 describe("PlanList", () => {

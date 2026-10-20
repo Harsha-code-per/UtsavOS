@@ -41,12 +41,7 @@ export function QuickFillPanel({ description, status, onDescription, onRun }: Pr
         <button type="submit" className="btn btn-primary" disabled={status.state === "busy"}>
           {status.state === "busy" ? "Reading your description…" : "Fill the form for me"}
         </button>
-        <p
-          className={styles.quickStatus}
-          role="status"
-          aria-live="polite"
-          data-state={status.state}
-        >
+        <p className={styles.quickStatus} role="status" data-state={status.state}>
           {status.message}
         </p>
       </form>

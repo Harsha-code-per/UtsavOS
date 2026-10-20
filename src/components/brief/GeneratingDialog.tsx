@@ -55,7 +55,7 @@ export function GeneratingDialog({ stages, done, onFinished, onStop }: Props) {
         <h2 id="generating-title" className={styles.title}>
           Drafting your plan with Gemini
         </h2>
-        <p className={styles.stage} role="status" aria-live="polite">
+        <p className={styles.stage} role="status">
           {stage}
         </p>
         <progress className="visually-hidden" max={100} value={Math.round(shown * 100)}>

@@ -26,11 +26,12 @@ async function syncPlans(uid: string) {
   const local = loadLocalPlans();
   const remote = await listRemotePlans(uid);
   const remoteById = new Map(remote.map((p) => [p.id, p]));
-  for (const plan of mergePlans(local, remote)) {
+  const uploads = mergePlans(local, remote).flatMap((plan) => {
     saveLocalPlan(plan);
     const copy = remoteById.get(plan.id);
-    if (!copy || copy.updatedAt < plan.updatedAt) await saveRemotePlan(uid, plan);
-  }
+    return !copy || copy.updatedAt < plan.updatedAt ? [saveRemotePlan(uid, plan)] : [];
+  });
+  await Promise.all(uploads);
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

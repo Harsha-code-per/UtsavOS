@@ -110,13 +110,7 @@ export function CoPlanner({ plan, onChange, question }: Props) {
         <span>Gemini</span>
       </div>
 
-      <div
-        ref={logRef}
-        className={styles.log}
-        role="log"
-        aria-live="polite"
-        aria-label="Conversation"
-      >
+      <div ref={logRef} className={styles.log} role="log" aria-label="Conversation">
         {turns.length === 0 && (
           <p className={styles.hello}>
             Ask anything about this plan, in any language. I can move budget, add tasks, update
