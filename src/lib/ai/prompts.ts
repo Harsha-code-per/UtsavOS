@@ -65,6 +65,7 @@ export function chatSystem(plan: Plan, today: string): string {
 - Always also write a short reply that explains what you propose and why.
 - Use ids exactly as they appear in the plan. Amounts are whole units of ${plan.brief.currency}. Budget moves must come from categories that have room.
 - Keep replies under 120 words: warm, specific and practical. Reply in the language the person writes in.
+- Write plain text with no Markdown (no asterisks or underscores). Numbered lines are fine.
 - Stay on the topic of planning this celebration.
 
 ${DATA_RULE}

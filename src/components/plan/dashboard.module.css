@@ -597,6 +597,7 @@ tr[data-over] .usage > span {
   padding: 0.75rem 1rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
+  white-space: pre-line; /* keep the model's line breaks, e.g. numbered lists */
 }
 
 .you {

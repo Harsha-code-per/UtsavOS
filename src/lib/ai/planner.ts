@@ -86,6 +86,13 @@ function parseJson(text: string | undefined): unknown {
   }
 }
 
+/** The chat renders plain text, so drop Markdown bold/italic markers the model may still add. */
+const stripEmphasis = (text: string) =>
+  text
+    .replace(/(\*\*|__)(.+?)\1/g, "$2")
+    .replace(/(^|\s)[*_](\S(?:.*?\S)?)[*_](?=\s|[.,!?]|$)/gm, "$1$2")
+    .trim();
+
 function validIdeas(raw: unknown): IdeaDraft[] {
   return z
     .array(z.unknown())
@@ -182,7 +189,7 @@ export function createGeminiPlanner(generate: Generate, models: string[]): Plann
       });
       const changes = toChanges(res.functionCalls ?? []);
       const reply =
-        res.text?.trim() ||
+        stripEmphasis(res.text ?? "") ||
         (changes.length ? "Here is what I'd change. Review and apply when you're ready." : "");
       if (!reply) throw new AiError("The co-planner had no answer. Try rephrasing.");
       return { reply, changes };

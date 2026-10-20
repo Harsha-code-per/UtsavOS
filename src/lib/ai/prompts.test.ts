@@ -37,3 +37,11 @@ describe("planPrompt", () => {
     expect(prompt).toContain("हिन्दी");
   });
 });
+
+describe("chatSystem", () => {
+  it("asks for plain text, because the chat does not render Markdown", async () => {
+    const { chatSystem } = await import("./prompts");
+    const { weddingPlan } = await import("@/test/fixtures");
+    expect(chatSystem(weddingPlan, "2026-10-20")).toMatch(/plain text/i);
+  });
+});

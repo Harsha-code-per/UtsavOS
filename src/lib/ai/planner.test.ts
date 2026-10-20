@@ -109,6 +109,14 @@ describe("createGeminiPlanner", () => {
     expect(call.config?.tools?.[0]).toHaveProperty("functionDeclarations");
   });
 
+  it("strips Markdown emphasis from replies, since the chat shows plain text", async () => {
+    const generate = fake({ text: "1. **Animal sounds:** guess the animal\n2. __Jungle hunt__" });
+    const { reply } = await createGeminiPlanner(generate, ["m"]).chat(plan, [
+      { role: "user", text: "games?" },
+    ]);
+    expect(reply).toBe("1. Animal sounds: guess the animal\n2. Jungle hunt");
+  });
+
   it("writes a short reply when the model only proposes changes", async () => {
     const generate = fake({ functionCalls: [{ name: "toggleMilestone", args: { id: "x" } }] });
     const result = await createGeminiPlanner(generate, ["m"]).chat(plan, [
