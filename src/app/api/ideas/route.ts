@@ -1,37 +1,25 @@
 import { z } from "zod";
-import { AiError, getPlanner, type Planner } from "@/lib/ai/planner";
+import type { Planner } from "@/lib/ai/planner";
 import { createTtlCache } from "@/lib/api/cache";
-import { errorResponse, json, rateLimited, readJson } from "@/lib/api/http";
+import { json } from "@/lib/api/http";
+import { aiRoute } from "@/lib/api/route";
 import { BriefSchema } from "@/lib/domain/schema";
-import { clientKey, createRateLimiter } from "@/lib/security/rate-limit";
 
 export const maxDuration = 60;
 
 const Body = z.object({ brief: BriefSchema });
-const limiter = createRateLimiter({ limit: 8, windowMs: 60_000 });
 const results = createTtlCache<Awaited<ReturnType<Planner["ideas"]>>>({
   ttlMs: 30 * 60_000,
   max: 200,
 });
 
 /** Fresh personalized ideas, grounded in the event's city with Google Search. */
-export async function POST(request: Request) {
-  const limit = limiter.check(clientKey(request));
-  if (!limit.ok) return rateLimited(limit.retryAfterSeconds);
-
-  const body = await readJson(request, Body);
-  if (!body.ok) return body.response;
-
-  const planner = getPlanner();
-  if (!planner) return errorResponse(503, "AI ideas aren't configured yet.");
-
-  try {
-    const key = JSON.stringify(body.data.brief);
-    const result = results.get(key) ?? (await planner.ideas(body.data.brief));
+export const POST = aiRoute(
+  { schema: Body, limit: 8, unconfigured: "AI ideas aren't configured yet." },
+  async ({ brief }, planner) => {
+    const key = JSON.stringify(brief);
+    const result = results.get(key) ?? (await planner.ideas(brief));
     results.set(key, result);
     return json(result);
-  } catch (error) {
-    if (error instanceof AiError) return errorResponse(502, error.message);
-    throw error;
-  }
-}
+  },
+);

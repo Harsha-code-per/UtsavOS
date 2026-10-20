@@ -176,3 +176,18 @@ function edit<K extends PlanChangeOp>(op: K, plan: Plan, change: PlanChangeMap[K
 export function applyChange(plan: Plan, change: PlanChange, now: Date = new Date()): Plan {
   return PlanSchema.parse({ ...edit(change.op, plan, change), updatedAt: now.toISOString() });
 }
+
+/** The changes that apply, in order, to this plan. Ones that miss an item or break a rule drop out. */
+export function applicableChanges(plan: Plan, changes: PlanChange[]): PlanChange[] {
+  const kept: PlanChange[] = [];
+  changes.reduce((working, change) => {
+    try {
+      const next = applyChange(working, change);
+      kept.push(change);
+      return next;
+    } catch {
+      return working;
+    }
+  }, plan);
+  return kept;
+}

@@ -16,7 +16,7 @@ export function rateLimited(retryAfterSeconds: number): Response {
   return res;
 }
 
-type ReadResult<T> = { ok: true; data: T } | { ok: false; response: Response };
+export type ReadResult<T> = { ok: true; data: T } | { ok: false; response: Response };
 
 const reject = (status: number, message: string) =>
   ({ ok: false, response: errorResponse(status, message) }) as const;

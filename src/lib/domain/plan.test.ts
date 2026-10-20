@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyChange, buildPlan, fallbackDraft, sanitizeDraft } from "./plan";
+import { applicableChanges, applyChange, buildPlan, fallbackDraft, sanitizeDraft } from "./plan";
 import { EVENT_TYPES, PlanSchema, type Brief } from "./schema";
 
 const brief: Brief = {
@@ -146,6 +146,27 @@ describe("applyChange", () => {
   it("rejects changes that reference things that do not exist", () => {
     expect(() => applyChange(plan, { op: "toggleMilestone", id: "nope" })).toThrow(/not found/i);
     expect(() => applyChange(plan, { op: "logSpend", id: "nope", amount: 5 })).toThrow(/unknown/i);
+  });
+});
+
+describe("applicableChanges", () => {
+  const plan = buildPlan(brief, fallbackDraft(brief), ctx);
+  const [first, second] = plan.budget;
+
+  it("keeps changes that apply in order and drops ones that don't", () => {
+    const changes = [
+      { op: "logSpend", id: first!.id, amount: 5000 },
+      { op: "toggleMilestone", id: "no-such-task" },
+      { op: "addMilestone", title: "Late", due: "2027-03-01" },
+      { op: "moveBudget", from: first!.id, to: second!.id, amount: 1000 },
+    ] as const;
+    expect(applicableChanges(plan, [...changes])).toEqual([changes[0], changes[3]]);
+  });
+
+  it("checks each change against the plan as the earlier ones left it", () => {
+    const all = first!.allocated;
+    const move = { op: "moveBudget", from: first!.id, to: second!.id, amount: all } as const;
+    expect(applicableChanges(plan, [move, move])).toEqual([move]);
   });
 });
 
