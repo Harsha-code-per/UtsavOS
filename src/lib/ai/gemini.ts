@@ -39,11 +39,17 @@ interface GenerateResult {
 export type Generate = (params: GenerateContentParameters) => Promise<GenerateResult>;
 type Call = (params: Omit<GenerateContentParameters, "model">) => Promise<GenerateResult>;
 
-const ATTEMPT_TIMEOUT_MS = 20_000;
+// A healthy model answers in seconds; one with a fallback behind it gets a short leash.
+const FALLBACK_ATTEMPT_MS = 12_000;
 const TOTAL_BUDGET_MS = 50_000; // stays inside the routes' 60 s maxDuration
 const MIN_ATTEMPT_MS = 5_000;
 // Errors another model might not have: retired (404), timeout, rate limit, overload.
 const FALL_THROUGH = new Set([404, 408, 429, 500, 502, 503, 504]);
+
+/** Time allowed for one model: short if another can take over, otherwise all that is left. */
+export function attemptTimeout({ remaining, isLast }: { remaining: number; isLast: boolean }) {
+  return isLast ? remaining : Math.min(FALLBACK_ATTEMPT_MS, remaining);
+}
 
 function shouldTryNextModel(error: unknown): boolean {
   if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
@@ -57,8 +63,9 @@ function shouldTryNextModel(error: unknown): boolean {
 function modelChainCaller(generate: Generate, models: string[]): Call {
   return async (params) => {
     const started = Date.now();
-    for (const model of models) {
+    for (const [index, model] of models.entries()) {
       const remaining = TOTAL_BUDGET_MS - (Date.now() - started);
+      const isLast = index === models.length - 1;
       if (remaining < MIN_ATTEMPT_MS) break;
       try {
         return await generate({
@@ -68,7 +75,7 @@ function modelChainCaller(generate: Generate, models: string[]): Call {
             // Planning needs little deliberation; low thinking cuts latency several-fold.
             thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
             ...params.config,
-            abortSignal: AbortSignal.timeout(Math.min(ATTEMPT_TIMEOUT_MS, remaining)),
+            abortSignal: AbortSignal.timeout(attemptTimeout({ remaining, isLast })),
           },
         });
       } catch (error) {
