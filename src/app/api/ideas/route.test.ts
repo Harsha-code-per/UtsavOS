@@ -25,6 +25,15 @@ describe("POST /api/ideas", () => {
     expect(body.sources[0].uri).toBe("https://example.com");
   });
 
+  it("serves repeated requests for the same brief from cache", async () => {
+    const ideas = vi.fn(mockPlanner.ideas);
+    planner.mockReturnValue({ ...mockPlanner, ideas });
+    const brief = { ...weddingBrief, name: "Ideas cache check" };
+    await POST(postJson({ brief }));
+    await POST(postJson({ brief }));
+    expect(ideas).toHaveBeenCalledTimes(1);
+  });
+
   it("returns 503 when AI is not configured", async () => {
     planner.mockReturnValue(null);
     expect((await POST(postJson({ brief: weddingBrief }))).status).toBe(503);

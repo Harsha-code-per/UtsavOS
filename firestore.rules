@@ -1,0 +1,49 @@
+rules_version = '2';
+
+// Each person's plans live under users/{uid}/plans and are visible only to them.
+// Writes are shape-checked here as well as by zod in the app (src/lib/domain/schema.ts).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isValidBrief(b) {
+      return b is map
+        && b.type in ['wedding', 'birthday', 'community', 'festival']
+        && b.name is string && b.name.size() > 0 && b.name.size() <= 80
+        && b.date is string && b.date.size() == 10
+        && b.city is string && b.city.size() <= 60
+        && b.guests is int && b.guests >= 1 && b.guests <= 5000
+        && b.budget is int && b.budget >= 1
+        && b.currency in ['INR', 'USD', 'GBP', 'EUR', 'AED']
+        && b.traditions is list && b.traditions.size() <= 12;
+    }
+
+    function isValidPlan(plan, planId) {
+      return plan.keys().hasOnly(
+          ['id', 'brief', 'budget', 'milestones', 'runSheet', 'vendors', 'ideas', 'updatedAt'])
+        && plan.keys().hasAll(
+          ['id', 'brief', 'budget', 'milestones', 'runSheet', 'vendors', 'ideas', 'updatedAt'])
+        && plan.id == planId
+        && isValidBrief(plan.brief)
+        && plan.budget is list && plan.budget.size() >= 1 && plan.budget.size() <= 20
+        && plan.milestones is list && plan.milestones.size() <= 60
+        && plan.runSheet is list && plan.runSheet.size() <= 30
+        && plan.vendors is list && plan.vendors.size() <= 20
+        && plan.ideas is list && plan.ideas.size() <= 30
+        && plan.updatedAt is string;
+    }
+
+    match /users/{uid}/plans/{planId} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && isValidPlan(request.resource.data, planId);
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

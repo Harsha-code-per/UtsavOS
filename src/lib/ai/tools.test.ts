@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PlanChangeSchema } from "@/lib/domain/schema";
-import { planTools, toChanges } from "./tools";
+import { planTools, toChanges, toGeminiSchema } from "./tools";
+import { z } from "zod";
 
 describe("planTools", () => {
   it("declares one Gemini function per plan change, with a description and JSON schema", () => {
@@ -33,5 +34,16 @@ describe("toChanges", () => {
       { args: { id: "x" } },
     ]);
     expect(changes).toEqual([{ op: "toggleMilestone", id: "book-venue" }]);
+  });
+});
+
+describe("toGeminiSchema", () => {
+  it("drops keywords Gemini's response schema rejects (zod still enforces them afterwards)", () => {
+    const schema = JSON.stringify(
+      toGeminiSchema(z.object({ list: z.array(z.string().regex(/a/)).min(1).max(3) })),
+    );
+    for (const key of ["$schema", "pattern", "minItems", "maxItems", "additionalProperties"]) {
+      expect(schema).not.toContain(key);
+    }
   });
 });

@@ -88,19 +88,21 @@ export const PlanSchema = z.object({
 export type Plan = z.infer<typeof PlanSchema>;
 
 /** What Gemini returns: relative, unvalidated intent. Code turns it into a Plan (see plan.ts). */
+export const DRAFT_ITEMS = {
+  budget: z.object({ category: text(60), percent: z.number().min(0).max(100) }),
+  milestones: z.object({ title: text(120), daysBefore: z.number().min(-30).max(730) }),
+  runSheet: z.object({ time: z.string().max(10), title: text(120) }),
+  vendors: z.object({ category: text(60), questions: z.array(text(200)).max(6) }),
+  ideas: z.object({ kind: z.enum(IDEA_KINDS), title: text(80), description: text(400) }),
+};
+export const DRAFT_LIMITS = { budget: 15, milestones: 40, runSheet: 20, vendors: 15, ideas: 15 };
+
 export const PlanDraftSchema = z.object({
-  budget: z
-    .array(z.object({ category: text(60), percent: z.number().min(0).max(100) }))
-    .min(1)
-    .max(15),
-  milestones: z
-    .array(z.object({ title: text(120), daysBefore: z.number().min(-30).max(730) }))
-    .max(40),
-  runSheet: z.array(z.object({ time: z.string().max(10), title: text(120) })).max(20),
-  vendors: z.array(z.object({ category: text(60), questions: z.array(text(200)).max(6) })).max(15),
-  ideas: z
-    .array(z.object({ kind: z.enum(IDEA_KINDS), title: text(80), description: text(400) }))
-    .max(15),
+  budget: z.array(DRAFT_ITEMS.budget).min(1).max(DRAFT_LIMITS.budget),
+  milestones: z.array(DRAFT_ITEMS.milestones).max(DRAFT_LIMITS.milestones),
+  runSheet: z.array(DRAFT_ITEMS.runSheet).max(DRAFT_LIMITS.runSheet),
+  vendors: z.array(DRAFT_ITEMS.vendors).max(DRAFT_LIMITS.vendors),
+  ideas: z.array(DRAFT_ITEMS.ideas).max(DRAFT_LIMITS.ideas),
 });
 export type PlanDraft = z.infer<typeof PlanDraftSchema>;
 

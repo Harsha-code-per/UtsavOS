@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildPlan, fallbackDraft } from "@/lib/domain/plan";
 import type { Brief } from "@/lib/domain/schema";
-import { AiError, createGeminiPlanner, getPlanner, mockPlanner, type Generate } from "./planner";
+import {
+  AiError,
+  createGeminiPlanner,
+  getPlanner,
+  mockPlanner,
+  modelChain,
+  type Generate,
+} from "./planner";
 
 const brief: Brief = {
   type: "wedding",
@@ -28,7 +35,7 @@ describe("createGeminiPlanner", () => {
   it("requests schema-constrained JSON for the plan draft and validates it", async () => {
     const draft = fallbackDraft(brief);
     const generate = fake({ text: JSON.stringify(draft) });
-    const result = await createGeminiPlanner(generate, "gemini-test").draftPlan(
+    const result = await createGeminiPlanner(generate, ["gemini-test"]).draftPlan(
       brief,
       "2026-10-20",
     );
@@ -43,16 +50,16 @@ describe("createGeminiPlanner", () => {
   });
 
   it("raises AiError when the model returns something that is not a valid draft", async () => {
-    const planner = createGeminiPlanner(fake({ text: '{"budget": "lots"}' }), "m");
+    const planner = createGeminiPlanner(fake({ text: '{"budget": "lots"}' }), ["m"]);
     await expect(planner.draftPlan(brief, "2026-10-20")).rejects.toBeInstanceOf(AiError);
-    const broken = createGeminiPlanner(fake({ text: "not json" }), "m");
+    const broken = createGeminiPlanner(fake({ text: "not json" }), ["m"]);
     await expect(broken.draftPlan(brief, "2026-10-20")).rejects.toBeInstanceOf(AiError);
   });
 
   it("raises AiError when the API call itself fails", async () => {
     const generate = vi.fn<Generate>().mockRejectedValue(new Error("quota"));
     await expect(
-      createGeminiPlanner(generate, "m").draftPlan(brief, "2026-10-20"),
+      createGeminiPlanner(generate, ["m"]).draftPlan(brief, "2026-10-20"),
     ).rejects.toBeInstanceOf(AiError);
   });
 
@@ -66,7 +73,7 @@ describe("createGeminiPlanner", () => {
         budget: -1,
       }),
     });
-    const patch = await createGeminiPlanner(generate, "m").parseBrief(
+    const patch = await createGeminiPlanner(generate, ["m"]).parseBrief(
       "Meera ka birthday",
       "2026-10-20",
     );
@@ -81,7 +88,7 @@ describe("createGeminiPlanner", () => {
         { name: "dropTable", args: {} },
       ],
     });
-    const result = await createGeminiPlanner(generate, "m").chat(plan, [
+    const result = await createGeminiPlanner(generate, ["m"]).chat(plan, [
       { role: "user", text: "Hi" },
       { role: "model", text: "Hello!" },
       { role: "user", text: "Decor is over budget" },
@@ -103,7 +110,7 @@ describe("createGeminiPlanner", () => {
 
   it("writes a short reply when the model only proposes changes", async () => {
     const generate = fake({ functionCalls: [{ name: "toggleMilestone", args: { id: "x" } }] });
-    const result = await createGeminiPlanner(generate, "m").chat(plan, [
+    const result = await createGeminiPlanner(generate, ["m"]).chat(plan, [
       { role: "user", text: "done" },
     ]);
     expect(result.reply.length).toBeGreaterThan(0);
@@ -125,7 +132,7 @@ describe("createGeminiPlanner", () => {
         },
       ],
     });
-    const result = await createGeminiPlanner(generate, "m").ideas(brief);
+    const result = await createGeminiPlanner(generate, ["m"]).ideas(brief);
 
     expect(generate.mock.calls[0]![0].config?.tools).toEqual([{ googleSearch: {} }]);
     expect(result.ideas).toEqual([
@@ -151,5 +158,37 @@ describe("getPlanner", () => {
     expect(getPlanner({ UTSAV_AI_MOCK: "1" })?.source).toBe("mock");
     expect(getPlanner({ GEMINI_API_KEY: "k" })?.source).toBe("gemini");
     expect(getPlanner({})).toBeNull();
+  });
+});
+
+describe("model fallback", () => {
+  const apiError = (status: number) => Object.assign(new Error(`HTTP ${status}`), { status });
+
+  it("moves to the next model when one is overloaded, rate limited or unavailable", async () => {
+    const draft = fallbackDraft(brief);
+    const generate = vi
+      .fn<Generate>()
+      .mockRejectedValueOnce(apiError(503))
+      .mockRejectedValueOnce(apiError(429))
+      .mockResolvedValueOnce({ text: JSON.stringify(draft) });
+    const planner = createGeminiPlanner(generate, ["a", "b", "c"]);
+
+    expect(await planner.draftPlan(brief, "2026-10-20")).toEqual(draft);
+    expect(generate.mock.calls.map(([p]) => p.model)).toEqual(["a", "b", "c"]);
+  });
+
+  it("fails fast on errors another model would not fix", async () => {
+    const generate = vi.fn<Generate>().mockRejectedValue(apiError(400));
+    await expect(
+      createGeminiPlanner(generate, ["a", "b"]).draftPlan(brief, "2026-10-20"),
+    ).rejects.toBeInstanceOf(AiError);
+    expect(generate).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("modelChain", () => {
+  it("reads a comma-separated GEMINI_MODEL, or uses the defaults", () => {
+    expect(modelChain({ GEMINI_MODEL: "x, y" })).toEqual(["x", "y"]);
+    expect(modelChain({}).length).toBeGreaterThanOrEqual(2);
   });
 });

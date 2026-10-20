@@ -14,9 +14,11 @@ const DESCRIPTIONS: Record<PlanChange["op"], string> = {
 };
 
 /** JSON Schema for Gemini: drop keys its schema subset rejects; zod re-validates the output. */
+const UNSUPPORTED = new Set(["$schema", "pattern", "minItems", "maxItems", "additionalProperties"]);
+
 export function toGeminiSchema(schema: z.ZodType): Record<string, unknown> {
   return JSON.parse(JSON.stringify(z.toJSONSchema(schema)), (key, value) =>
-    key === "$schema" || key === "pattern" ? undefined : value,
+    UNSUPPORTED.has(key) ? undefined : value,
   );
 }
 

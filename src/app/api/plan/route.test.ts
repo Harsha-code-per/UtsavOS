@@ -29,7 +29,9 @@ describe("POST /api/plan", () => {
       source: "gemini",
       draftPlan: () => Promise.reject(new AiError("Gemini is unavailable right now.")),
     } satisfies Planner);
-    const body = await (await POST(postJson({ brief: weddingBrief }))).json();
+    const body = await (
+      await POST(postJson({ brief: { ...weddingBrief, name: "Gemini down" } }))
+    ).json();
     expect(body.source).toBe("template");
     expect(body.notice).toMatch(/unavailable/);
     expect(body.plan.budget.length).toBeGreaterThan(0);
@@ -37,8 +39,20 @@ describe("POST /api/plan", () => {
 
   it("uses the starter plan when no AI is configured", async () => {
     planner.mockReturnValue(null);
-    const body = await (await POST(postJson({ brief: weddingBrief }))).json();
+    const body = await (
+      await POST(postJson({ brief: { ...weddingBrief, name: "No AI configured" } }))
+    ).json();
     expect(body.source).toBe("template");
+  });
+
+  it("serves a repeated identical brief from cache without calling Gemini again", async () => {
+    const draftPlan = vi.fn(mockPlanner.draftPlan);
+    planner.mockReturnValue({ ...mockPlanner, draftPlan });
+    const repeat = { ...weddingBrief, name: "Cache check" };
+    await POST(postJson({ brief: repeat, today: "2026-10-20" }));
+    const second = await (await POST(postJson({ brief: repeat, today: "2026-10-20" }))).json();
+    expect(draftPlan).toHaveBeenCalledTimes(1);
+    expect(second.source).toBe("mock");
   });
 
   it("rejects an invalid brief with 400", async () => {

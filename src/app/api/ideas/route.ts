@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { AiError, getPlanner } from "@/lib/ai/planner";
+import { AiError, getPlanner, type Planner } from "@/lib/ai/planner";
+import { createTtlCache } from "@/lib/api/cache";
 import { errorResponse, json, rateLimited, readJson } from "@/lib/api/http";
 import { BriefSchema } from "@/lib/domain/schema";
 import { clientKey, createRateLimiter } from "@/lib/security/rate-limit";
@@ -8,6 +9,10 @@ export const maxDuration = 60;
 
 const Body = z.object({ brief: BriefSchema });
 const limiter = createRateLimiter({ limit: 8, windowMs: 60_000 });
+const results = createTtlCache<Awaited<ReturnType<Planner["ideas"]>>>({
+  ttlMs: 30 * 60_000,
+  max: 200,
+});
 
 /** Fresh personalized ideas, grounded in the event's city with Google Search. */
 export async function POST(request: Request) {
@@ -21,7 +26,10 @@ export async function POST(request: Request) {
   if (!planner) return errorResponse(503, "AI ideas aren't configured yet.");
 
   try {
-    return json(await planner.ideas(body.data.brief));
+    const key = JSON.stringify(body.data.brief);
+    const result = results.get(key) ?? (await planner.ideas(body.data.brief));
+    results.set(key, result);
+    return json(result);
   } catch (error) {
     if (error instanceof AiError) return errorResponse(502, error.message);
     throw error;

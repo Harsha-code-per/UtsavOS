@@ -1,6 +1,6 @@
 import { GoogleGenAI, type GenerateContentParameters } from "@google/genai";
 import { z } from "zod";
-import { fallbackDraft } from "@/lib/domain/plan";
+import { fallbackDraft, sanitizeDraft } from "@/lib/domain/plan";
 import {
   BriefSchema,
   IDEA_KINDS,
@@ -20,7 +20,12 @@ import {
 } from "./prompts";
 import { planTools, toChanges, toGeminiSchema } from "./tools";
 
-export const DEFAULT_MODEL = "gemini-flash-latest";
+/** Tried in order: a model that is overloaded, rate limited or retired hands over to the next. */
+export const DEFAULT_MODELS = [
+  "gemini-3.8-flash",
+  "gemini-flash-lite-latest",
+  "gemini-flash-latest",
+];
 
 export const ChatMessageSchema = z.object({
   role: z.enum(["user", "model"]),
@@ -63,7 +68,18 @@ interface GenerateResult {
 }
 export type Generate = (params: GenerateContentParameters) => Promise<GenerateResult>;
 
-const TIMEOUT_MS = 30_000;
+const ATTEMPT_TIMEOUT_MS = 20_000;
+const TOTAL_BUDGET_MS = 50_000; // stays inside the routes' 60 s maxDuration
+// Errors another model might not have: retired (404), timeout, rate limit, overload.
+const FALL_THROUGH = new Set([404, 408, 429, 500, 502, 503, 504]);
+
+function shouldTryNextModel(error: unknown): boolean {
+  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+    return true;
+  }
+  const status = (error as { status?: unknown } | null)?.status;
+  return typeof status === "number" && FALL_THROUGH.has(status);
+}
 
 function parseJson(text: string | undefined): unknown {
   try {
@@ -73,18 +89,27 @@ function parseJson(text: string | undefined): unknown {
   }
 }
 
-export function createGeminiPlanner(generate: Generate, model: string): Planner {
+export function createGeminiPlanner(generate: Generate, models: string[]): Planner {
   async function call(params: Omit<GenerateContentParameters, "model">): Promise<GenerateResult> {
-    try {
-      return await generate({
-        model,
-        ...params,
-        config: { ...params.config, abortSignal: AbortSignal.timeout(TIMEOUT_MS) },
-      });
-    } catch (error) {
-      console.error("Gemini request failed", error);
-      throw new AiError("Gemini is unavailable right now. Please try again in a moment.");
+    const started = Date.now();
+    for (const model of models) {
+      const remaining = TOTAL_BUDGET_MS - (Date.now() - started);
+      if (remaining < 5_000) break;
+      try {
+        return await generate({
+          model,
+          ...params,
+          config: {
+            ...params.config,
+            abortSignal: AbortSignal.timeout(Math.min(ATTEMPT_TIMEOUT_MS, remaining)),
+          },
+        });
+      } catch (error) {
+        console.error(`Gemini request failed on ${model}`, error);
+        if (!shouldTryNextModel(error)) break;
+      }
     }
+    throw new AiError("Gemini is unavailable right now. Please try again in a moment.");
   }
 
   return {
@@ -100,10 +125,9 @@ export function createGeminiPlanner(generate: Generate, model: string): Planner 
           temperature: 0.8,
         },
       });
-      const draft = PlanDraftSchema.safeParse(parseJson(res.text));
-      if (!draft.success)
-        throw new AiError("The planner's draft was incomplete. Please try again.");
-      return draft.data;
+      const draft = sanitizeDraft(parseJson(res.text));
+      if (!draft) throw new AiError("The planner's draft was incomplete. Please try again.");
+      return draft;
     },
 
     async parseBrief(description, today) {
@@ -210,12 +234,22 @@ export const mockPlanner: Planner = {
   },
 };
 
-export function getPlanner(env: Record<string, string | undefined> = process.env): Planner | null {
+type Env = Record<string, string | undefined>;
+
+export function modelChain(env: Env): string[] {
+  const configured = env.GEMINI_MODEL?.split(",")
+    .map((m) => m.trim())
+    .filter(Boolean);
+  return configured?.length ? configured : DEFAULT_MODELS;
+}
+
+export function getPlanner(env: Env = process.env): Planner | null {
   if (env.UTSAV_AI_MOCK === "1") return mockPlanner;
   if (!env.GEMINI_API_KEY) return null;
-  const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
-  return createGeminiPlanner(
-    (p) => ai.models.generateContent(p),
-    env.GEMINI_MODEL || DEFAULT_MODEL,
-  );
+  // One quick SDK-level retry per model; the model chain handles longer outages.
+  const ai = new GoogleGenAI({
+    apiKey: env.GEMINI_API_KEY,
+    httpOptions: { retryOptions: { attempts: 2, initialDelay: 1, maxDelay: 2 } },
+  });
+  return createGeminiPlanner((p) => ai.models.generateContent(p), modelChain(env));
 }

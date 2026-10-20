@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyChange, buildPlan, fallbackDraft } from "./plan";
+import { applyChange, buildPlan, fallbackDraft, sanitizeDraft } from "./plan";
 import { EVENT_TYPES, PlanSchema, type Brief } from "./schema";
 
 const brief: Brief = {
@@ -146,5 +146,36 @@ describe("applyChange", () => {
   it("rejects changes that reference things that do not exist", () => {
     expect(() => applyChange(plan, { op: "toggleMilestone", id: "nope" })).toThrow(/not found/i);
     expect(() => applyChange(plan, { op: "logSpend", id: "nope", amount: 5 })).toThrow(/unknown/i);
+  });
+});
+
+describe("sanitizeDraft", () => {
+  const good = fallbackDraft(brief);
+
+  it("keeps a valid draft as it is", () => {
+    expect(sanitizeDraft(good)).toEqual(good);
+  });
+
+  it("drops invalid items instead of rejecting the whole draft", () => {
+    const draft = sanitizeDraft({
+      ...good,
+      ideas: [
+        { kind: "theme", title: "Ok", description: "Fine." },
+        { kind: "spaceship", title: "x" },
+      ],
+      vendors: [{ category: "Decor", questions: ["Q?", 42] }],
+    });
+    expect(draft?.ideas).toEqual([{ kind: "theme", title: "Ok", description: "Fine." }]);
+    expect(draft?.vendors).toEqual([{ category: "Decor", questions: ["Q?"] }]);
+  });
+
+  it("trims over-long lists to their limits", () => {
+    const many = Array.from({ length: 50 }, (_, i) => ({ title: `Task ${i}`, daysBefore: i }));
+    expect(sanitizeDraft({ ...good, milestones: many })?.milestones).toHaveLength(40);
+  });
+
+  it("returns null when there is no usable budget or the input is not an object", () => {
+    expect(sanitizeDraft({ ...good, budget: [] })).toBeNull();
+    expect(sanitizeDraft("nope")).toBeNull();
   });
 });
