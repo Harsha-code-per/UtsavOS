@@ -17,7 +17,7 @@ export function HeroBrief() {
   const router = useRouter();
   const [text, setText] = useState("");
 
-  function submit(event: React.FormEvent) {
+  function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const description = text.trim();
     if (description) putDescription(description);

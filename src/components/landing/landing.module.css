@@ -1,0 +1,9 @@
+/* Shared landing styles. */
+
+.sectionTitle {
+  max-width: 18ch;
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 4.8vw, 4rem);
+  line-height: 1.04;
+}

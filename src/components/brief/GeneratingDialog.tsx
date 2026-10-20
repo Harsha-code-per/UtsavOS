@@ -9,8 +9,8 @@ interface Props {
   stages: string[];
   /** Set when the plan has arrived: the garland completes before onFinished runs. */
   done: boolean;
-  onFinished(): void;
-  onStop(): void;
+  onFinished: () => void;
+  onStop: () => void;
 }
 
 /** Modal shown while Gemini drafts the plan; the toran lights up as it goes. */

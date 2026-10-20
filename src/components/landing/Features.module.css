@@ -1,0 +1,144 @@
+/* The four core features. */
+
+.features {
+  padding-block: clamp(4.5rem, 9vw, 8rem) clamp(3rem, 6vw, 5rem);
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--paper);
+}
+
+.featureWide {
+  grid-column: span 2;
+}
+
+.feature h3 {
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.feature > p {
+  max-width: 34rem;
+  color: var(--body-on-ivory);
+}
+
+.featureDark {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--diya);
+}
+
+.featureDark > p {
+  color: var(--body-on-night);
+}
+
+.miniBudget,
+.miniTimeline,
+.miniVendors,
+.miniIdeas {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: auto;
+  padding: 1rem 0 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.miniBudget li {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr) 8.5rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.miniBudget li > span:last-child {
+  text-align: right;
+  color: var(--muted-on-ivory);
+}
+
+.miniBudget svg {
+  width: 100%;
+  height: 10px;
+}
+
+.barTrack {
+  fill: var(--track);
+}
+
+.barFill {
+  fill: var(--ink);
+}
+
+.miniBudget li[data-over] .barFill {
+  fill: var(--kumkum);
+}
+
+.miniBudget li[data-over] > span:last-child {
+  color: var(--kumkum);
+  font-weight: 700;
+}
+
+.miniTimeline li {
+  display: flex;
+  gap: 1rem;
+}
+
+.miniTimeline time {
+  width: 3.75rem;
+  flex: 0 0 auto;
+  color: var(--kumkum-deep);
+  font-weight: 600;
+}
+
+.miniVendors li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.miniIdeas {
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.miniIdeas li {
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-s);
+  background: rgb(246 239 227 / 0.08);
+  border-left: 3px solid var(--marigold);
+}
+
+@media (max-width: 960px) {
+  .featureGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .featureWide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .miniBudget li {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+
+  .miniBudget li > span:last-child {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+}

@@ -15,6 +15,62 @@ const SUGGESTIONS: Record<Plan["brief"]["type"], string[]> = {
   festival: ["What's due this week?", "Easy sweets to make at home", "Where can we save money?"],
 };
 
+interface ComposerProps {
+  value: string;
+  busy: boolean;
+  listening: boolean;
+  onChange: (value: string) => void;
+  onListen: () => void;
+  onSubmit: () => void;
+}
+
+/** Message box with voice input and send. */
+function Composer({ value, busy, listening, onChange, onListen, onSubmit }: ComposerProps) {
+  return (
+    <form
+      className={styles.composer}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+    >
+      <label htmlFor="coplanner-input" className="visually-hidden">
+        Message the co-planner
+      </label>
+      <input
+        id="coplanner-input"
+        value={value}
+        maxLength={2000}
+        autoComplete="off"
+        placeholder="Ask in any language…"
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <button
+        type="button"
+        className={styles.iconButton}
+        aria-label={listening ? "Listening…" : "Speak your message"}
+        aria-pressed={listening}
+        onClick={onListen}
+      >
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <rect x="7" y="2" width="6" height="10" rx="3" />
+          <path d="M4 9.5a6 6 0 0 0 12 0M10 15.5V18" />
+        </svg>
+      </button>
+      <button
+        type="submit"
+        className={styles.sendButton}
+        aria-label="Send message"
+        disabled={busy || !value.trim()}
+      >
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <path d="M3 10h13M11 5l5 5-5 5" />
+        </svg>
+      </button>
+    </form>
+  );
+}
+
 interface Props {
   plan: Plan;
   onChange: ChangePlan;
@@ -100,47 +156,14 @@ export function CoPlanner({ plan, onChange, question }: Props) {
         ))}
       </div>
 
-      <form
-        className={styles.composer}
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit(input);
-        }}
-      >
-        <label htmlFor="coplanner-input" className="visually-hidden">
-          Message the co-planner
-        </label>
-        <input
-          id="coplanner-input"
-          value={input}
-          maxLength={2000}
-          autoComplete="off"
-          placeholder="Ask in any language…"
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button
-          type="button"
-          className={styles.iconButton}
-          aria-label={speech.listening ? "Listening…" : "Speak your message"}
-          aria-pressed={speech.listening}
-          onClick={speech.listen}
-        >
-          <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
-            <rect x="7" y="2" width="6" height="10" rx="3" />
-            <path d="M4 9.5a6 6 0 0 0 12 0M10 15.5V18" />
-          </svg>
-        </button>
-        <button
-          type="submit"
-          className={styles.sendButton}
-          aria-label="Send message"
-          disabled={busy || !input.trim()}
-        >
-          <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
-            <path d="M3 10h13M11 5l5 5-5 5" />
-          </svg>
-        </button>
-      </form>
+      <Composer
+        value={input}
+        busy={busy}
+        listening={speech.listening}
+        onChange={setInput}
+        onListen={speech.listen}
+        onSubmit={() => submit(input)}
+      />
     </aside>
   );
 }

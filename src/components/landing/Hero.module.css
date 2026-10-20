@@ -1,0 +1,86 @@
+/* Hero: headline and lead. */
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding-block: clamp(2.5rem, 6vw, 5.5rem) clamp(4rem, 8vw, 7rem);
+}
+
+.watermark {
+  position: absolute;
+  top: -1rem;
+  right: -3rem;
+  font-family: var(--font-display-stack);
+  font-size: clamp(12rem, 30vw, 27rem);
+  line-height: 1;
+  color: var(--diya);
+  opacity: 0.045;
+  pointer-events: none;
+  user-select: none;
+}
+
+.heroCopy {
+  position: relative;
+}
+
+.kicker {
+  color: var(--marigold);
+  font-size: 1.0625rem;
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 5.7vw, 5.9rem);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+}
+
+/* Each line rises out of its own mask once the garland has unfurled. */
+.line {
+  display: block;
+  overflow: clip;
+  padding-bottom: 0.08em;
+}
+
+.line > span {
+  display: block;
+  animation: rise 0.9s var(--ease-out) both;
+}
+
+.line:nth-child(1) > span {
+  animation-delay: 0.55s;
+}
+
+.line:nth-child(2) > span {
+  animation-delay: 0.68s;
+}
+
+.line:nth-child(3) > span {
+  animation-delay: 0.81s;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+.lead {
+  max-width: 34rem;
+  margin-block: 1.75rem 2.25rem;
+  font-size: clamp(1.125rem, 1.6vw, 1.3rem);
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--body-on-night);
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,70 @@
+/* Sentence-to-brief scroll scene. */
+
+/* Sentence-to-brief scene. Default (no JS or reduced motion) is the finished state;
+   LandingMotion scrubs it from plain sentence to filled brief as you scroll. */
+.demo {
+  padding-block: clamp(4rem, 9vw, 8rem);
+  border-top: 1px solid rgb(246 239 227 / 0.1);
+}
+
+.demoInner {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.demoTitle {
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 4.6vw, 3.75rem);
+  line-height: 1.05;
+}
+
+.demoLead {
+  max-width: 38rem;
+  color: var(--body-on-night);
+  font-size: 1.125rem;
+}
+
+.sentence {
+  max-width: 24ch;
+  margin-top: 1rem;
+  font-family: var(--font-display-stack);
+  font-size: clamp(1.9rem, 3.7vw, 3.4rem);
+  line-height: 1.42;
+  color: var(--muted-on-night);
+}
+
+.sentence mark {
+  --hl: 1;
+  padding: 0 0.06em;
+  border-radius: 0.18em;
+  background: rgb(244 178 62 / calc(var(--hl) * 0.95));
+  color: color-mix(in srgb, var(--night) calc(var(--hl) * 100%), var(--muted-on-night));
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.fields > div {
+  padding: 1rem 1.25rem;
+  border: 1px solid rgb(246 239 227 / 0.16);
+  border-radius: var(--radius-m);
+  background: var(--night-raised);
+}
+
+.fields dt {
+  color: var(--muted-on-night);
+  font-size: 0.9375rem;
+}
+
+.fields dd {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--diya);
+}

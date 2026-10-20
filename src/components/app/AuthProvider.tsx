@@ -15,8 +15,8 @@ interface AuthValue {
   status: "loading" | "signedOut" | "signedIn" | "unavailable";
   user: User | null;
   error: string | null;
-  signIn(): Promise<void>;
-  signOut(): Promise<void>;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -42,15 +42,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!firebaseConfigured) return;
-    let unsubscribe = () => {};
-    let cancelled = false;
+    // Mutable box: the async loader may finish after the effect has been cleaned up.
+    const subscription: { cancelled: boolean; unsubscribe?: () => void } = { cancelled: false };
     void (async () => {
       const [{ auth }, { onAuthStateChanged }] = await Promise.all([
         loadFirebase(),
         import("firebase/auth"),
       ]);
-      if (cancelled) return;
-      unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      if (subscription.cancelled) return;
+      subscription.unsubscribe = onAuthStateChanged(auth, (fbUser) => {
         if (!fbUser) {
           setUser(null);
           setStatus("signedOut");
@@ -69,8 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     })();
     return () => {
-      cancelled = true;
-      unsubscribe();
+      subscription.cancelled = true;
+      subscription.unsubscribe?.();
     };
   }, []);
 

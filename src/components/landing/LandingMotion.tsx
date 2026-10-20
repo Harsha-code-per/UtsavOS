@@ -10,7 +10,7 @@ import { useEffect } from "react";
 export function LandingMotion() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let cleanup = () => {};
+    let cleanup: (() => void) | undefined;
 
     void (async () => {
       const [{ gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([
@@ -21,7 +21,7 @@ export function LandingMotion() {
       gsap.registerPlugin(ScrollTrigger);
 
       const lenis = new Lenis({ lerp: 0.12 });
-      lenis.on("scroll", ScrollTrigger.update);
+      lenis.on("scroll", () => ScrollTrigger.update());
       const tick = (time: number) => lenis.raf(time * 1000);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
@@ -30,7 +30,6 @@ export function LandingMotion() {
         const demo = document.querySelector<HTMLElement>("[data-demo]");
         if (!demo) return;
         const tokens = gsap.utils.toArray<HTMLElement>("[data-token]", demo);
-        const order = tokens.map((t) => t.dataset.token);
 
         gsap.set(tokens, { "--hl": 0 });
         gsap.set("[data-field]", { autoAlpha: 0.15, y: 16 });
@@ -46,10 +45,10 @@ export function LandingMotion() {
             pin: pinned,
           },
         });
-        order.forEach((field, i) => {
+        tokens.forEach((token, i) => {
           timeline
-            .to(tokens[i]!, { "--hl": 1 }, i)
-            .to(`[data-field="${field}"]`, { autoAlpha: 1, y: 0 }, i + 0.3);
+            .to(token, { "--hl": 1 }, i)
+            .to(`[data-field="${token.dataset.token ?? ""}"]`, { autoAlpha: 1, y: 0 }, i + 0.3);
         });
       });
 
@@ -60,7 +59,7 @@ export function LandingMotion() {
       };
     })();
 
-    return () => cleanup();
+    return () => cleanup?.();
   }, []);
 
   return null;

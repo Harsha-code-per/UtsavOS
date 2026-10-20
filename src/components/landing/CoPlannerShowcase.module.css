@@ -1,0 +1,71 @@
+/* Co-planner showcase. */
+
+.coplanner {
+  background: var(--night);
+  color: var(--diya);
+  padding-block: clamp(4.5rem, 9vw, 8rem);
+}
+
+.coInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 4rem;
+}
+
+.coLead {
+  max-width: 32rem;
+  margin-top: 1.25rem;
+  font-size: 1.1875rem;
+  font-weight: 300;
+  color: var(--body-on-night);
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.you,
+.them {
+  max-width: 84%;
+  padding: 0.9rem 1.15rem;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.you {
+  align-self: flex-end;
+  border-radius: 20px 20px 4px 20px;
+  background: var(--marigold);
+  color: var(--night);
+}
+
+.them {
+  align-self: flex-start;
+  border: 1px solid rgb(246 239 227 / 0.14);
+  border-radius: 20px 20px 20px 4px;
+  background: var(--night-raised);
+}
+
+.proposal {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.proposal li {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: var(--night);
+}
+
+@media (max-width: 960px) {
+  .coInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

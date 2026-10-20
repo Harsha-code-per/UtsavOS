@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "@/lib/api/client";
+import { putDescription } from "@/lib/store/handoff";
 import { BriefWizard } from "./BriefWizard";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -134,5 +135,35 @@ describe("BriefWizard generation", () => {
     await fillBasics(user);
     await user.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByLabelText("City")).toHaveValue("Bengaluru");
+  });
+});
+
+describe("BriefWizard quick-fill", () => {
+  it("asks for a few more words before calling Gemini", async () => {
+    const user = userEvent.setup();
+    render(<BriefWizard fromDescription={false} />);
+    await user.click(screen.getByRole("button", { name: "Fill the form for me" }));
+    expect(screen.getByText("Describe the celebration in a few words first.")).toBeInTheDocument();
+    expect(parseBrief).not.toHaveBeenCalled();
+  });
+
+  it("fills the brief straight away when arriving with a description from the landing page", async () => {
+    parseBrief.mockResolvedValue({ patch: { city: "Kochi", guests: 40 } });
+    putDescription("Onam sadhya for 40 in Kochi");
+    render(<BriefWizard fromDescription />);
+    expect(await screen.findByText(/Filled 2 fields/)).toBeInTheDocument();
+    expect(parseBrief).toHaveBeenCalledWith("Onam sadhya for 40 in Kochi");
+    expect(screen.getByLabelText("Describe it in any language")).toHaveValue(
+      "Onam sadhya for 40 in Kochi",
+    );
+  });
+
+  it("says so when the description has nothing to fill", async () => {
+    const user = userEvent.setup();
+    parseBrief.mockResolvedValue({ patch: {} });
+    render(<BriefWizard fromDescription={false} />);
+    await user.type(screen.getByLabelText("Describe it in any language"), "a party");
+    await user.click(screen.getByRole("button", { name: "Fill the form for me" }));
+    expect(await screen.findByText(/Couldn't find details to fill/)).toBeInTheDocument();
   });
 });

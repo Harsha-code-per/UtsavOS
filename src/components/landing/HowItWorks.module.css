@@ -1,0 +1,55 @@
+/* How it works: four steps. */
+
+.how {
+  padding-block: clamp(3rem, 6vw, 5rem) clamp(4.5rem, 9vw, 8rem);
+}
+
+.howInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 3rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem 2rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  padding-top: 1.1rem;
+  border-top: 2px solid var(--ink);
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: "Step " counter(step);
+  color: var(--kumkum-deep);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.steps h3 {
+  margin-block: 0.3rem 0.4rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.steps p {
+  color: var(--body-on-ivory);
+}
+
+@media (max-width: 960px) {
+  .howInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

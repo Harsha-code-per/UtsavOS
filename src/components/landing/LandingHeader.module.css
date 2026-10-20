@@ -1,0 +1,42 @@
+/* Landing header and garland. */
+
+.toran {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.25rem;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+}
+
+.nav a:not(:global(.btn)) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--body-on-night);
+  text-decoration: none;
+}
+
+.nav a:not(:global(.btn)):hover {
+  color: var(--diya);
+}
+
+@media (max-width: 600px) {
+  .nav a:not(:global(.btn)) {
+    display: none;
+  }
+}
