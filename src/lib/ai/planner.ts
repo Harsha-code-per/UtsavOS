@@ -8,8 +8,10 @@ export * from "./types";
 export { createGeminiPlanner, type Generate } from "./gemini";
 export { mockPlanner } from "./mock";
 
-/** Tried in order: a model that is overloaded, rate limited or retired hands over to the next. */
-// ("gemini-flash-latest" is left out: it aliases the newest Flash, i.e. the first entry.)
+/**
+ * Tried in order: a model that is overloaded, rate limited or retired hands over to the next.
+ * Override with GEMINI_MODEL. ("gemini-flash-latest" is left out: it aliases the first entry.)
+ */
 export const DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-flash-lite-latest"];
 
 type Env = Record<string, string | undefined>;

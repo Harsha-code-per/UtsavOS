@@ -43,6 +43,7 @@ export function BudgetPanel({ plan, onChange, onAsk }: Props) {
 
   return (
     <div className={panel.stack}>
+      <h2 className="visually-hidden">Budget</h2>
       <dl className={styles.summary}>
         <div>
           <dt>Total budget</dt>

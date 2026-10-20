@@ -151,6 +151,7 @@ function AddVendorForm({ onChange }: { onChange: ChangePlan }) {
 export function VendorsPanel({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
   return (
     <div className={panel.stack}>
+      <h2 className="visually-hidden">Vendor checklist</h2>
       <ul className={styles.vendors}>
         {plan.vendors.map((v) => (
           <VendorRow key={v.id} vendor={v} plan={plan} onChange={onChange} />

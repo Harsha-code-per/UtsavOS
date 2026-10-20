@@ -58,7 +58,12 @@ export function GeneratingDialog({ stages, done, onFinished, onStop }: Props) {
         <p className={styles.stage} role="status">
           {stage}
         </p>
-        <progress className="visually-hidden" max={100} value={Math.round(shown * 100)}>
+        <progress
+          className="visually-hidden"
+          aria-labelledby="generating-title"
+          max={100}
+          value={Math.round(shown * 100)}
+        >
           {Math.round(shown * 100)}%
         </progress>
         {!done && (

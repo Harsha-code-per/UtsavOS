@@ -37,8 +37,8 @@ export function StarterNotice({
 
   if (!starter && !state.message) return null;
   return (
-    <div className={styles.notice} role="status" lang="en">
-      <p>{state.message ?? STARTER_TEXT}</p>
+    <div className={styles.notice} lang="en">
+      <p role="status">{state.message ?? STARTER_TEXT}</p>
       <button
         type="button"
         className="btn btn-ink btn-small"
