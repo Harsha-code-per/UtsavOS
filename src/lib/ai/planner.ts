@@ -93,6 +93,24 @@ const stripEmphasis = (text: string) =>
     .replace(/(^|\s)[*_](\S(?:.*?\S)?)[*_](?=\s|[.,!?]|$)/gm, "$1$2")
     .trim();
 
+// Used when Gemini proposes changes without any text, in the language the person is using.
+const PROPOSAL_REPLY: Record<Brief["language"], string> = {
+  en: "Here is what I'd change. Review and apply when you're ready.",
+  hi: "मेरे सुझाए बदलाव ये हैं। देखकर ठीक लगें तो लागू करें।",
+  bn: "আমার প্রস্তাবিত পরিবর্তনগুলো এখানে। দেখে ঠিক মনে হলে প্রয়োগ করুন।",
+  mr: "मी सुचवलेले बदल हे आहेत. तपासून योग्य वाटल्यास लागू करा.",
+  te: "నేను సూచించే మార్పులు ఇవి. చూసి సరైనవి అనిపిస్తే వర్తింపజేయండి.",
+  ta: "நான் பரிந்துரைக்கும் மாற்றங்கள் இவை. பார்த்து சரியெனில் பயன்படுத்துங்கள்.",
+  gu: "મારા સૂચવેલા ફેરફારો આ છે. જોઈને યોગ્ય લાગે તો લાગુ કરો.",
+  kn: "ನಾನು ಸೂಚಿಸುವ ಬದಲಾವಣೆಗಳು ಇವು. ನೋಡಿ ಸರಿ ಅನಿಸಿದರೆ ಅನ್ವಯಿಸಿ.",
+  ml: "ഞാൻ നിർദ്ദേശിക്കുന്ന മാറ്റങ്ങൾ ഇവയാണ്. പരിശോധിച്ച് ശരിയെന്ന് തോന്നിയാൽ പ്രയോഗിക്കുക.",
+  pa: "ਮੇਰੇ ਸੁਝਾਏ ਬਦਲਾਅ ਇਹ ਹਨ। ਦੇਖ ਕੇ ਠੀਕ ਲੱਗਣ ਤਾਂ ਲਾਗੂ ਕਰੋ।",
+};
+
+/** English if the person wrote in Latin script, otherwise the plan's language. */
+const proposalReply = (language: Brief["language"], lastMessage: string) =>
+  PROPOSAL_REPLY[/^[\p{Script=Latin}\p{N}\p{P}\p{S}\s]*$/u.test(lastMessage) ? "en" : language];
+
 function validIdeas(raw: unknown): IdeaDraft[] {
   return z
     .array(z.unknown())
@@ -188,9 +206,10 @@ export function createGeminiPlanner(generate: Generate, models: string[]): Plann
         },
       });
       const changes = toChanges(res.functionCalls ?? []);
+      const lastMessage = messages.at(-1)?.text ?? "";
       const reply =
         stripEmphasis(res.text ?? "") ||
-        (changes.length ? "Here is what I'd change. Review and apply when you're ready." : "");
+        (changes.length ? proposalReply(plan.brief.language, lastMessage) : "");
       if (!reply) throw new AiError("The co-planner had no answer. Try rephrasing.");
       return { reply, changes };
     },

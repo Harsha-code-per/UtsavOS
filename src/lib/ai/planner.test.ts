@@ -117,6 +117,19 @@ describe("createGeminiPlanner", () => {
     expect(reply).toBe("1. Animal sounds: guess the animal\n2. Jungle hunt");
   });
 
+  it("writes the fallback reply in the person's language when the model sends only changes", async () => {
+    const generate = fake({ functionCalls: [{ name: "toggleMilestone", args: { id: "x" } }] });
+    const hindiPlan = { ...plan, brief: { ...plan.brief, language: "hi" as const } };
+    const hindi = await createGeminiPlanner(generate, ["m"]).chat(hindiPlan, [
+      { role: "user", text: "बच्चों के लिए खेल सुझाओ" },
+    ]);
+    expect(hindi.reply).toMatch(/[\u0900-\u097F]/);
+    const english = await createGeminiPlanner(generate, ["m"]).chat(hindiPlan, [
+      { role: "user", text: "suggest games" },
+    ]);
+    expect(english.reply).toMatch(/^Here/);
+  });
+
   it("writes a short reply when the model only proposes changes", async () => {
     const generate = fake({ functionCalls: [{ name: "toggleMilestone", args: { id: "x" } }] });
     const result = await createGeminiPlanner(generate, ["m"]).chat(plan, [
