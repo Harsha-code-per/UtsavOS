@@ -4,6 +4,7 @@ import { createContext, use, useCallback, useEffect, useMemo, useState } from "r
 import { firebaseConfigured, loadFirebase } from "@/lib/firebase/client";
 import { loadLocalPlans, mergePlans, saveLocalPlan } from "@/lib/store/local";
 import { listRemotePlans, saveRemotePlan } from "@/lib/store/remote";
+import { setSaveStatus } from "@/lib/store/save-status";
 
 export interface User {
   uid: string;
@@ -53,13 +54,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!fbUser) {
           setUser(null);
           setStatus("signedOut");
+          setSaveStatus("device");
           return;
         }
         setUser({ uid: fbUser.uid, name: fbUser.displayName ?? fbUser.email ?? "You" });
         setStatus("signedIn");
-        syncPlans(fbUser.uid).catch(() =>
-          setError("Couldn't sync your plans. They're safe on this device."),
-        );
+        setSaveStatus("saving");
+        syncPlans(fbUser.uid)
+          .then(() => setSaveStatus("saved"))
+          .catch(() => {
+            setSaveStatus("error");
+            setError("Couldn't sync your plans. They're safe on this device.");
+          });
       });
     })();
     return () => {

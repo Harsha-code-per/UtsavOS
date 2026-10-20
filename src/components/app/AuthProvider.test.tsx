@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadLocalPlans, saveLocalPlan } from "@/lib/store/local";
+import { getSaveStatus } from "@/lib/store/save-status";
 import { listRemotePlans, saveRemotePlan } from "@/lib/store/remote";
 import { weddingPlan } from "@/test/fixtures";
 import { AuthButton } from "./AuthButton";
@@ -70,6 +71,7 @@ describe("AuthProvider and AuthButton", () => {
         .map((p) => p.id)
         .sort(),
     ).toEqual([weddingPlan.id, "remote-plan"].sort());
+    await waitFor(() => expect(getSaveStatus()).toBe("saved"));
   });
 
   it("explains blocked pop-ups but stays quiet when the person closes the pop-up", async () => {
@@ -92,5 +94,7 @@ describe("AuthProvider and AuthButton", () => {
     auth.listener!({ uid: "u1", displayName: "Ananya" });
     await user.click(await screen.findByRole("button", { name: "Sign out" }));
     expect(auth.signOut).toHaveBeenCalled();
+    auth.listener!(null);
+    await waitFor(() => expect(getSaveStatus()).toBe("device"));
   });
 });
