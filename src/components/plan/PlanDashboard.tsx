@@ -78,6 +78,7 @@ export function PlanDashboard({ id, starter }: { id: string; starter: boolean })
           <Tabs active={tab} onChange={setTab} />
           <div
             role="tabpanel"
+            tabIndex={0}
             id={`panel-${tab}`}
             aria-labelledby={`tab-${tab}`}
             className={styles.panel}

@@ -7,6 +7,9 @@ export const EVENT_TYPE_LABEL: Record<Brief["type"], string> = {
   festival: "Festival",
 };
 
+/** "1,50,000" -> 150000; anything without digits -> 0. */
+export const parseAmount = (text: string) => Number(text.replace(/[^\d]/g, "")) || 0;
+
 export function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat(currency === "INR" ? "en-IN" : "en", {
     style: "currency",

@@ -44,6 +44,15 @@
   background: var(--paper);
 }
 
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
 .link {
   display: grid;
   flex: 1;

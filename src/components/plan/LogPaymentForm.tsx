@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatMoney } from "@/lib/domain/format";
+import { categoryName, formatMoney, parseAmount } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
 import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import type { ChangePlan } from "./PlanDashboard";
@@ -15,14 +15,14 @@ export function LogPaymentForm({ plan, onChange }: { plan: Plan; onChange: Chang
 
   function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    const value = Number(amount.replace(/[^\d]/g, ""));
+    const value = parseAmount(amount);
     if (!value) {
       setStatus(failure("Enter the amount you spent."));
       return;
     }
     const error = onChange({ op: "logSpend", id: category, amount: value });
-    const name = plan.budget.find((l) => l.id === category)?.category ?? category;
-    setStatus(outcome(error, `Logged ${formatMoney(value, plan.brief.currency)} on ${name}.`));
+    const spent = formatMoney(value, plan.brief.currency);
+    setStatus(outcome(error, `Logged ${spent} on ${categoryName(plan, category)}.`));
     if (!error) setAmount("");
   }
 

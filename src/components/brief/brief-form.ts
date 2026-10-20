@@ -1,5 +1,5 @@
 import type { BriefPatch } from "@/lib/ai/types";
-import { formatDate, formatMoney } from "@/lib/domain/format";
+import { formatDate, formatMoney, parseAmount } from "@/lib/domain/format";
 import { BriefSchema, type Brief } from "@/lib/domain/schema";
 
 /** The brief as typed into the form: numbers stay text until submitted. */
@@ -63,9 +63,6 @@ export const emptyForm = (type: Brief["type"] = "wedding"): BriefForm => ({
   diet: "Veg and non-veg",
   language: "en",
 });
-
-/** "1,50,000" -> 150000; anything without digits -> 0. */
-export const parseAmount = (text: string) => Number(text.replace(/[^\d]/g, "")) || 0;
 
 /** The form as an unvalidated brief, ready for `BriefSchema`. */
 export const toBrief = (form: BriefForm): unknown => ({

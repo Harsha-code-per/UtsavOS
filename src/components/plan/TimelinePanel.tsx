@@ -76,6 +76,8 @@ function MilestoneItem({
   );
 }
 
+const TIME = /^\d{2}:\d{2}$/;
+
 function RunSheet({ plan }: { plan: Plan }) {
   if (!plan.runSheet.length) return null;
   return (
@@ -84,7 +86,9 @@ function RunSheet({ plan }: { plan: Plan }) {
       <ol>
         {plan.runSheet.map((item) => (
           <li key={`${item.time}-${item.title}`}>
-            <time>{item.time}</time>
+            <time dateTime={TIME.test(item.time) ? `${plan.brief.date}T${item.time}` : undefined}>
+              {item.time}
+            </time>
             {item.title}
           </li>
         ))}

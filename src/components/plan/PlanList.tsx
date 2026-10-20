@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { localToday } from "@/lib/api/client";
 import { formatDate } from "@/lib/domain/format";
 import { daysUntil } from "@/lib/domain/timeline";
@@ -8,6 +9,53 @@ import { usePlanActions, usePlanList } from "@/lib/store/usePlans";
 import { useAuth } from "@/components/app/AuthProvider";
 import styles from "./PlanList.module.css";
 
+/** Delete with an in-page confirmation; focus moves to the choice and back if it's cancelled. */
+function DeletePlan({ name, onDelete }: { name: string; onDelete: () => void }) {
+  const [asking, setAsking] = useState(false);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const askRef = useRef<HTMLButtonElement>(null);
+  const answered = useRef(false);
+
+  useEffect(() => {
+    if (asking) confirmRef.current?.focus();
+    else if (answered.current) askRef.current?.focus();
+  }, [asking]);
+
+  if (!asking) {
+    return (
+      <button
+        ref={askRef}
+        type="button"
+        className="btn btn-outline btn-small"
+        aria-label={`Delete ${name}`}
+        onClick={() => setAsking(true)}
+      >
+        Delete
+      </button>
+    );
+  }
+  const question = `Delete “${name}”? This can't be undone.`;
+  return (
+    <div role="group" aria-label={question} className={styles.confirm}>
+      <span aria-hidden="true">Delete for good?</span>
+      <button ref={confirmRef} type="button" className="btn btn-ink btn-small" onClick={onDelete}>
+        Delete plan
+      </button>
+      <button
+        type="button"
+        className="btn btn-outline btn-small"
+        onClick={() => {
+          answered.current = true;
+          setAsking(false);
+        }}
+      >
+        Keep
+      </button>
+    </div>
+  );
+}
+
+/** Every saved plan, newest first, with a link to each dashboard. */
 export function PlanList() {
   const plans = usePlanList();
   const { remove } = usePlanActions();
@@ -50,18 +98,7 @@ export function PlanList() {
                     {days >= 0 ? `${days} days to go` : "Celebrated"}
                   </span>
                 </Link>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-small"
-                  aria-label={`Delete ${plan.brief.name}`}
-                  onClick={() => {
-                    if (window.confirm(`Delete “${plan.brief.name}”? This can't be undone.`)) {
-                      void remove(plan.id);
-                    }
-                  }}
-                >
-                  Delete
-                </button>
+                <DeletePlan name={plan.brief.name} onDelete={() => void remove(plan.id)} />
               </li>
             );
           })}

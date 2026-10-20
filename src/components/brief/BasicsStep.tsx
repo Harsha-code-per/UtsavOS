@@ -1,7 +1,6 @@
 import { localToday } from "@/lib/api/client";
-import { EVENT_TYPE_LABEL, formatMoney } from "@/lib/domain/format";
+import { EVENT_TYPE_LABEL, formatMoney, parseAmount } from "@/lib/domain/format";
 import { CURRENCIES, EVENT_TYPES, type Brief } from "@/lib/domain/schema";
-import { parseAmount } from "./brief-form";
 import styles from "./BriefWizard.module.css";
 import { FieldError } from "./FieldError";
 import type { StepProps } from "./step-props";

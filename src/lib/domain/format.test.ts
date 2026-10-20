@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { weddingPlan } from "@/test/fixtures";
-import { describeChange, formatDate, formatMoney } from "./format";
+import { describeChange, formatDate, formatMoney, parseAmount } from "./format";
+
+describe("parseAmount", () => {
+  it("reads digits through grouping and currency signs, and treats no digits as zero", () => {
+    expect(parseAmount("₹1,50,000")).toBe(150000);
+    expect(parseAmount("abc")).toBe(0);
+    expect(parseAmount("")).toBe(0);
+  });
+});
 
 describe("formatMoney", () => {
   it("uses Indian digit grouping for rupees and no decimals", () => {

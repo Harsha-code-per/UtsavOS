@@ -62,12 +62,12 @@ describe("PlanList", () => {
   it("lists saved plans and deletes one after confirmation", async () => {
     const user = userEvent.setup();
     saveLocalPlan(weddingPlan);
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     renderWithAuth(<PlanList />);
     expect(
       screen.getByRole("link", { name: new RegExp(weddingPlan.brief.name) }),
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: `Delete ${weddingPlan.brief.name}` }));
+    await user.click(screen.getByRole("button", { name: "Delete plan" }));
     expect(await screen.findByText(/No plans yet/)).toBeInTheDocument();
   });
 });
