@@ -63,3 +63,9 @@
 .types a:hover {
   border-color: var(--marigold);
 }
+
+@media (max-width: 600px) {
+  .form > button {
+    flex: 1 1 100%;
+  }
+}

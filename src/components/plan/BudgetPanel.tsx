@@ -68,7 +68,8 @@ export function BudgetPanel({ plan, onChange, onAsk }: Props) {
         </div>
       )}
 
-      <div className={styles.tableWrap}>
+      {/* Scrolls sideways on phones, so it must be focusable for keyboard scrolling. */}
+      <div className={styles.tableWrap} role="region" aria-label="Budget by category" tabIndex={0}>
         <table className={styles.table}>
           <caption className="visually-hidden">Budget by category</caption>
           <thead>
