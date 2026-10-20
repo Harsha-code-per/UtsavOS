@@ -73,7 +73,7 @@ src/
   app/                 routes: landing, (app)/plan/new, (app)/plan/[id], (app)/plans, api/*
   components/          brand (toran, logo), landing, brief wizard, plan dashboard panels
   lib/domain/          pure, framework-free logic: schema, budget, timeline, ics, plan, format
-  lib/ai/              Gemini planner, prompts, function-calling tools
+  lib/ai/              planner facade, Gemini adapter (model chain), mock, prompts, tools, output guards
   lib/api/             request guard, TTL cache, typed browser client
   lib/security/        CSP builder, rate limiter
   lib/store/           local + Firestore persistence, React hooks
@@ -120,6 +120,14 @@ Lighthouse on the live site scores **100** for Accessibility, Best Practices and
 | End-to-end (Playwright, desktop + Pixel 7)    | `npm run test:e2e`              | brief → plan → overspend → approved fix → calendar export; persistence; axe audits; CSP and header checks                        |
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `npm audit`, Prettier, ESLint, the type check, unit tests with coverage, rules tests and the end-to-end suite on every push.
+
+## Code quality
+
+- **Strict TypeScript and lint.** `strict` plus `noUncheckedIndexedAccess`. ESLint uses typescript-eslint's `strictTypeChecked` and `stylisticTypeChecked` presets on all application code, with zero warnings allowed.
+- **Size and complexity budgets, enforced in CI.** At most 250 lines per file, 80 lines per function, cyclomatic complexity 10, nesting depth 3 and 3 parameters ([`eslint.config.mjs`](eslint.config.mjs)).
+- **Layered design.** `lib/domain` is pure and framework-free. Each kind of plan change is a typed entry in an exhaustive table ([`plan.ts`](src/lib/domain/plan.ts)), so adding one is a compile error until it is handled everywhere. UI components stay small and keep logic in hooks (`use*.ts`) or pure modules such as [`brief-form.ts`](src/components/brief/brief-form.ts).
+- **No unchecked assumptions** in application code: no `any`, no non-null assertions, and model output is validated before use.
+- **Coverage floors.** Lines 85%, statements 85%, functions 85% and branches 75%, enforced by Vitest (currently about 93% of lines). Code duplication is under 0.1% (jscpd).
 
 ## Run it locally
 
