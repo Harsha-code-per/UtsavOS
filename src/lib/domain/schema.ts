@@ -1,0 +1,134 @@
+import { z } from "zod";
+
+export const EVENT_TYPES = ["wedding", "birthday", "community", "festival"] as const;
+export const CURRENCIES = ["INR", "USD", "GBP", "EUR", "AED"] as const;
+export const LANGUAGES = {
+  en: "English",
+  hi: "हिन्दी",
+  bn: "বাংলা",
+  mr: "मराठी",
+  te: "తెలుగు",
+  ta: "தமிழ்",
+  gu: "ગુજરાતી",
+  kn: "ಕನ್ನಡ",
+  ml: "മലയാളം",
+  pa: "ਪੰਜਾਬੀ",
+} as const;
+export const VENDOR_STATUSES = ["todo", "contacted", "booked"] as const;
+export const IDEA_KINDS = ["theme", "decor", "menu", "activity", "gift"] as const;
+
+const text = (max: number) => z.string().trim().min(1).max(max);
+const isoDate = z.iso.date();
+
+export const BriefSchema = z.object({
+  type: z.enum(EVENT_TYPES),
+  name: text(80),
+  date: isoDate,
+  city: text(60),
+  guests: z.int().min(1).max(5000),
+  budget: z.int().min(1).max(10_000_000_000),
+  currency: z.enum(CURRENCIES),
+  vibe: z.string().trim().max(200),
+  traditions: z.array(text(40)).max(12),
+  diet: z.string().trim().max(60),
+  language: z.enum(Object.keys(LANGUAGES) as [keyof typeof LANGUAGES]),
+});
+export type Brief = z.infer<typeof BriefSchema>;
+
+export const BudgetLineSchema = z.object({
+  id: text(60),
+  category: text(60),
+  allocated: z.int().min(0),
+  spent: z.int().min(0),
+});
+export type BudgetLine = z.infer<typeof BudgetLineSchema>;
+
+export const MilestoneSchema = z.object({
+  id: text(60),
+  title: text(120),
+  due: isoDate,
+  done: z.boolean(),
+});
+export type Milestone = z.infer<typeof MilestoneSchema>;
+
+export const RunSheetItemSchema = z.object({
+  time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  title: text(120),
+});
+export type RunSheetItem = z.infer<typeof RunSheetItemSchema>;
+
+export const VendorSchema = z.object({
+  id: text(60),
+  category: text(60),
+  name: z.string().trim().max(80),
+  status: z.enum(VENDOR_STATUSES),
+  quote: z.int().min(0).nullable(),
+  questions: z.array(text(200)).max(8),
+});
+export type Vendor = z.infer<typeof VendorSchema>;
+
+export const IdeaSchema = z.object({
+  id: text(60),
+  kind: z.enum(IDEA_KINDS),
+  title: text(80),
+  description: text(400),
+});
+export type Idea = z.infer<typeof IdeaSchema>;
+
+export const PlanSchema = z.object({
+  id: text(60),
+  brief: BriefSchema,
+  budget: z.array(BudgetLineSchema).min(1).max(20),
+  milestones: z.array(MilestoneSchema).max(60),
+  runSheet: z.array(RunSheetItemSchema).max(30),
+  vendors: z.array(VendorSchema).max(20),
+  ideas: z.array(IdeaSchema).max(30),
+  updatedAt: z.iso.datetime(),
+});
+export type Plan = z.infer<typeof PlanSchema>;
+
+/** What Gemini returns: relative, unvalidated intent. Code turns it into a Plan (see plan.ts). */
+export const PlanDraftSchema = z.object({
+  budget: z
+    .array(z.object({ category: text(60), percent: z.number().min(0).max(100) }))
+    .min(1)
+    .max(15),
+  milestones: z
+    .array(z.object({ title: text(120), daysBefore: z.number().min(-30).max(730) }))
+    .max(40),
+  runSheet: z.array(z.object({ time: z.string().max(10), title: text(120) })).max(20),
+  vendors: z.array(z.object({ category: text(60), questions: z.array(text(200)).max(6) })).max(15),
+  ideas: z
+    .array(z.object({ kind: z.enum(IDEA_KINDS), title: text(80), description: text(400) }))
+    .max(15),
+});
+export type PlanDraft = z.infer<typeof PlanDraftSchema>;
+
+const id = text(60);
+const amount = z.int().min(1).max(10_000_000_000);
+
+/** Every edit to a plan, whether from the UI or the co-planner's function calls. */
+export const PlanChangeSchema = z.discriminatedUnion("op", [
+  z.object({ op: z.literal("moveBudget"), from: id, to: id, amount }),
+  z.object({ op: z.literal("logSpend"), id, amount }),
+  z.object({ op: z.literal("addMilestone"), title: text(120), due: isoDate }),
+  z.object({ op: z.literal("toggleMilestone"), id }),
+  z.object({
+    op: z.literal("addVendor"),
+    category: text(60),
+    questions: z.array(text(200)).max(6),
+  }),
+  z.object({
+    op: z.literal("setVendorStatus"),
+    id,
+    status: z.enum(VENDOR_STATUSES),
+    quote: z.int().min(0).nullable().optional(),
+  }),
+  z.object({
+    op: z.literal("addIdea"),
+    kind: z.enum(IDEA_KINDS),
+    title: text(80),
+    description: text(400),
+  }),
+]);
+export type PlanChange = z.infer<typeof PlanChangeSchema>;
