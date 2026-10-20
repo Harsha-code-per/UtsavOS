@@ -2,6 +2,8 @@
 
 **An AI celebration planner for weddings, birthdays and community events.** Describe your celebration in one sentence, in English, Hindi, Hinglish or eight other Indian languages, and UtsavOS uses Google Gemini to draft the **budget**, **timeline**, **vendor checklist** and **personalized ideas**. A co-planner then refines the plan with you, and nothing changes until you approve it.
 
+**Live app: https://utsav-os-teal.vercel.app**
+
 [![CI](https://github.com/Harsha-code-per/UtsavOS/actions/workflows/ci.yml/badge.svg)](https://github.com/Harsha-code-per/UtsavOS/actions/workflows/ci.yml)
 
 Built for PromptWars Virtual, Challenge 5: Celebration & Event Planner.
@@ -101,6 +103,8 @@ Defence in depth, detailed in [SECURITY.md](SECURITY.md):
 - Colour is never the only signal: overruns, statuses and due dates are always stated in text. Touch targets are at least 44px.
 
 ## Efficiency
+
+Lighthouse on the live site scores **100** for Accessibility, Best Practices and SEO on both desktop and mobile, with 0 failed audits. A performance trace shows **LCP 507 ms** and **CLS 0.00**.
 
 - Firebase, GSAP and Lenis are **lazy-loaded** with dynamic `import()`. The landing page never downloads Firebase.
 - The landing load sequence is pure CSS, with no JavaScript gate or layout shift. Fonts are self-hosted with `next/font`.
