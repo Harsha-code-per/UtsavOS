@@ -11,7 +11,7 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
-      include: ["src/lib/**", "src/components/**", "src/app/api/**"],
+      include: ["src/lib/**", "src/components/**", "src/app/api/**", "src/proxy.ts"],
       reporter: ["text", "html", "lcov"],
       // CI fails if coverage drops below these floors.
       thresholds: { lines: 85, statements: 85, functions: 85, branches: 75 },
