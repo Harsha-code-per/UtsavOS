@@ -4,6 +4,16 @@ import type { Brief, Plan, PlanChange } from "@/lib/domain/schema";
 /** The person's own calendar date, which the server accepts within a day of its own. */
 export const localToday = () => new Date().toLocaleDateString("en-CA");
 
+const GENERIC_ERROR = "Something went wrong. Please try again.";
+
+/** What to show for a failed call: the error's own words when it has them. */
+export const errorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : GENERIC_ERROR;
+
+/** True for a request the person (or a newer request) cancelled on purpose. */
+export const isAbort = (error: unknown) =>
+  error instanceof DOMException && error.name === "AbortError";
+
 async function post<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
   let res: Response;
   try {
@@ -14,11 +24,11 @@ async function post<T>(path: string, body: unknown, signal?: AbortSignal): Promi
       signal,
     });
   } catch (error) {
-    if ((error as Error).name === "AbortError") throw error;
+    if (isAbort(error)) throw error;
     throw new Error("You seem to be offline. Check your connection and try again.");
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
+  if (!res.ok) throw new Error(data.error ?? GENERIC_ERROR);
   return data as T;
 }
 

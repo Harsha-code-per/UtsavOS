@@ -5,7 +5,10 @@ import { api } from "@/lib/api/client";
 import { weddingPlan } from "@/test/fixtures";
 import { CoPlanner } from "./CoPlanner";
 
-vi.mock("@/lib/api/client", () => ({ api: { chat: vi.fn() } }));
+vi.mock("@/lib/api/client", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api/client")>()),
+  api: { chat: vi.fn() },
+}));
 const chat = vi.mocked(api.chat);
 
 const [venue, catering] = weddingPlan.budget;

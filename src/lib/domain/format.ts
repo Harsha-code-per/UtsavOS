@@ -1,4 +1,11 @@
-import type { Plan, PlanChange, PlanChangeMap, PlanChangeOp } from "./schema";
+import type { Brief, Plan, PlanChange, PlanChangeMap, PlanChangeOp } from "./schema";
+
+export const EVENT_TYPE_LABEL: Record<Brief["type"], string> = {
+  wedding: "Wedding",
+  birthday: "Birthday",
+  community: "Community event",
+  festival: "Festival",
+};
 
 export function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat(currency === "INR" ? "en-IN" : "en", {
@@ -17,7 +24,8 @@ export function formatDate(iso: string): string {
   }).format(new Date(`${iso}T00:00:00Z`));
 }
 
-const categoryName = (plan: Plan, id: string) =>
+/** A budget line's name, or its id when the line no longer exists. */
+export const categoryName = (plan: Plan, id: string) =>
   plan.budget.find((l) => l.id === id)?.category ?? id;
 
 type Describers = { [K in PlanChangeOp]: (change: PlanChangeMap[K], plan: Plan) => string };

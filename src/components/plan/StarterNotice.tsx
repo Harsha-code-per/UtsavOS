@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { api } from "@/lib/api/client";
+import { api, errorMessage } from "@/lib/api/client";
 import type { Plan } from "@/lib/domain/schema";
 import styles from "./PlanDashboard.module.css";
 
@@ -31,7 +31,7 @@ export function StarterNotice({
       onRedrafted({ ...fresh, id: plan.id });
       setState({ busy: false, message: "Redrafted with Gemini." });
     } catch (e) {
-      setState({ busy: false, message: (e as Error).message });
+      setState({ busy: false, message: errorMessage(e) });
     }
   }
 

@@ -1,16 +1,16 @@
 import { localToday } from "@/lib/api/client";
-import { formatMoney } from "@/lib/domain/format";
+import { EVENT_TYPE_LABEL, formatMoney } from "@/lib/domain/format";
 import { CURRENCIES, EVENT_TYPES, type Brief } from "@/lib/domain/schema";
 import { parseAmount } from "./brief-form";
 import styles from "./BriefWizard.module.css";
 import { FieldError } from "./FieldError";
 import type { StepProps } from "./step-props";
 
-const TYPE_CARDS: Record<Brief["type"], { label: string; hint: string }> = {
-  wedding: { label: "Wedding", hint: "Roka to reception" },
-  birthday: { label: "Birthday", hint: "First to fiftieth" },
-  community: { label: "Community", hint: "Pandals, meetups, drives" },
-  festival: { label: "Festival", hint: "Diwali, Eid, Onam, Christmas" },
+const TYPE_HINT: Record<Brief["type"], string> = {
+  wedding: "Roka to reception",
+  birthday: "First to fiftieth",
+  community: "Pandals, meetups, drives",
+  festival: "Diwali, Eid, Onam, Christmas",
 };
 
 /** Event types as native radios, styled as cards (arrow keys work out of the box). */
@@ -33,8 +33,8 @@ function EventTypePicker({
             checked={value === type}
             onChange={() => onChange(type)}
           />
-          <span className={styles.typeLabel}>{TYPE_CARDS[type].label}</span>
-          <span className={styles.typeHint}>{TYPE_CARDS[type].hint}</span>
+          <span className={styles.typeLabel}>{EVENT_TYPE_LABEL[type]}</span>
+          <span className={styles.typeHint}>{TYPE_HINT[type]}</span>
         </label>
       ))}
     </fieldset>

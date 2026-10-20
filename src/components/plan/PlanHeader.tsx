@@ -1,17 +1,10 @@
 import { localToday } from "@/lib/api/client";
 import { summarizeBudget } from "@/lib/domain/budget";
-import { formatDate } from "@/lib/domain/format";
+import { EVENT_TYPE_LABEL, formatDate } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
 import { daysUntil } from "@/lib/domain/timeline";
 import type { SaveState } from "@/lib/store/usePlans";
 import styles from "./PlanDashboard.module.css";
-
-const TYPE_LABEL: Record<Plan["brief"]["type"], string> = {
-  wedding: "Wedding",
-  birthday: "Birthday",
-  community: "Community event",
-  festival: "Festival",
-};
 
 const SAVE_LABEL: Record<SaveState, string> = {
   device: "Saved on this device",
@@ -39,7 +32,7 @@ export function PlanHeader({ plan, saveState }: { plan: Plan; saveState: SaveSta
     <header className={styles.head} lang="en">
       <div>
         <p className={styles.meta}>
-          {TYPE_LABEL[brief.type]} in {brief.city} on {formatDate(brief.date)}, for{" "}
+          {EVENT_TYPE_LABEL[brief.type]} in {brief.city} on {formatDate(brief.date)}, for{" "}
           {brief.guests.toLocaleString("en-IN")} guests
         </p>
         <h1 className={styles.title} lang={brief.language}>

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { weddingBrief } from "@/test/fixtures";
-import { api, localToday } from "./client";
+import { api, errorMessage, isAbort, localToday } from "./client";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -51,5 +51,16 @@ describe("api client", () => {
 
   it("formats today as an ISO calendar date", () => {
     expect(localToday()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("reads an error's message, with a plain fallback for anything else", () => {
+    expect(errorMessage(new Error("Quota reached"))).toBe("Quota reached");
+    expect(errorMessage("boom")).toBe("Something went wrong. Please try again.");
+  });
+
+  it("recognises aborted requests only", () => {
+    expect(isAbort(new DOMException("aborted", "AbortError"))).toBe(true);
+    expect(isAbort(new Error("offline"))).toBe(false);
+    expect(isAbort(undefined)).toBe(false);
   });
 });

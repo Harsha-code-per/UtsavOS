@@ -1,9 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import styles from "./status.module.css";
 
-export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
+interface Props {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+/** The error boundary: logs what broke and offers a retry. Plans live in storage, so none are lost. */
+export default function ErrorPage({ error, reset }: Props) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
   return (
     <main id="main" className={styles.page}>
       <div className={`container ${styles.body}`}>

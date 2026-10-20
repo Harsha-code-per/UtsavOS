@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
-import { api } from "@/lib/api/client";
+import { api, errorMessage, isAbort } from "@/lib/api/client";
 import type { Brief, Plan } from "@/lib/domain/schema";
 import { usePlanActions } from "@/lib/store/usePlans";
 
@@ -31,7 +31,7 @@ export function usePlanGeneration() {
       setGenerating({ done: true, plan, notice });
     } catch (e) {
       setGenerating(null);
-      if ((e as Error).name !== "AbortError") setError((e as Error).message);
+      if (!isAbort(e)) setError(errorMessage(e));
     }
   }
 

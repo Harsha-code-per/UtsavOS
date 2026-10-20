@@ -1,10 +1,9 @@
+import { categoryName } from "@/lib/domain/format";
 import { fallbackDraft } from "@/lib/domain/plan";
 import type { BudgetLine, Plan, PlanChange } from "@/lib/domain/schema";
 import type { Planner } from "./types";
 
 const room = (line: BudgetLine) => line.allocated - line.spent;
-const categoryName = (plan: Plan, id: string) =>
-  plan.budget.find((line) => line.id === id)?.category ?? id;
 
 /** Moves spare money into the first overspent line (or a quarter of the roomiest into the first). */
 function proposeRebalance(plan: Plan): PlanChange | null {

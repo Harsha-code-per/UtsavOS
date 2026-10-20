@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api } from "@/lib/api/client";
+import { api, errorMessage } from "@/lib/api/client";
 import type { BriefPatch } from "@/lib/ai/types";
 import { takeDescription } from "@/lib/store/handoff";
 
@@ -31,7 +31,7 @@ export function useQuickFill(fill: (patch: BriefPatch) => number, fromDescriptio
         const { patch } = await api.parseBrief(text);
         setStatus({ state: "done", message: filledMessage(fill(patch)) });
       } catch (e) {
-        setStatus({ state: "error", message: (e as Error).message });
+        setStatus({ state: "error", message: errorMessage(e) });
       }
     },
     [fill],

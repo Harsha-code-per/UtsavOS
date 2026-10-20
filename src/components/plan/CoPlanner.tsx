@@ -123,16 +123,16 @@ export function CoPlanner({ plan, onChange, question }: Props) {
             vendors and suggest ideas. You approve every change.
           </p>
         )}
-        {turns.map((turn, i) => (
+        {turns.map((turn) => (
           <ChatTurn
-            key={i}
+            key={turn.id}
             turn={turn}
             plan={plan}
             onApply={(changes) => {
               const problem = onChange(...changes);
-              settle(i, problem ? { kind: "failed", reason: problem } : { kind: "applied" });
+              settle(turn.id, problem ? { kind: "failed", reason: problem } : { kind: "applied" });
             }}
-            onDismiss={() => settle(i, { kind: "dismissed" })}
+            onDismiss={() => settle(turn.id, { kind: "dismissed" })}
           />
         ))}
         {busy && (

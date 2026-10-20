@@ -32,6 +32,7 @@ function Proposal({ changes, plan, outcome, onApply, onDismiss }: ProposalProps)
   return (
     <div className={styles.proposal}>
       <ul>
+        {/* A proposal's changes are fixed once received, so their order is a stable key. */}
         {changes.map((change, i) => (
           <li key={i}>{describeChange(change, plan)}</li>
         ))}

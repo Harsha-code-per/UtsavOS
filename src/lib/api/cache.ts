@@ -6,7 +6,8 @@ interface Options {
 
 /**
  * Small in-memory TTL cache so repeated identical AI requests don't spend Gemini quota.
- * ponytail: per serverless instance; a shared store (e.g. Upstash) if hit rates ever matter.
+ * Limitation: one cache per serverless instance; move to a shared store (e.g. Upstash) if hit
+ * rates ever matter.
  */
 export function createTtlCache<V>({ ttlMs, max, now = Date.now }: Options) {
   const entries = new Map<string, { value: V; expires: number }>();

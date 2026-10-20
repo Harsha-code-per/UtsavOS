@@ -5,7 +5,10 @@ import { api } from "@/lib/api/client";
 import { weddingPlan } from "@/test/fixtures";
 import { IdeasPanel } from "./IdeasPanel";
 
-vi.mock("@/lib/api/client", () => ({ api: { ideas: vi.fn() } }));
+vi.mock("@/lib/api/client", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api/client")>()),
+  api: { ideas: vi.fn() },
+}));
 const ideas = vi.mocked(api.ideas);
 const idea = {
   kind: "menu" as const,

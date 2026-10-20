@@ -62,7 +62,7 @@ export function Toran({ lit = flowers.length, unfurl = false, className }: Props
       <g className={styles.flowers}>
         {flowers.map((f, i) => (
           <g
-            key={i}
+            key={`${f.x.toFixed(1)},${f.y.toFixed(1)}`}
             className={styles.flower}
             data-lit={i < lit ? "" : undefined}
             data-tone={i % 3 === 1 ? "sindoor" : "marigold"}

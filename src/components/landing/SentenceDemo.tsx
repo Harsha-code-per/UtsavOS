@@ -1,22 +1,5 @@
 import styles from "./SentenceDemo.module.css";
 
-// The sentence, split into plain text and the details Gemini picks out (`field`).
-const SENTENCE = [
-  { text: "A ", field: null },
-  { text: "300-guest", field: "guests" },
-  { text: " ", field: null },
-  { text: "Telugu wedding", field: "type" },
-  { text: " in ", field: null },
-  { text: "Hyderabad", field: "city" },
-  { text: " ", field: null },
-  { text: "next February", field: "date" },
-  { text: ", ", field: null },
-  { text: "₹25 lakh", field: "budget" },
-  { text: ", with ", field: null },
-  { text: "haldi and sangeet", field: "traditions" },
-  { text: ".", field: null },
-] as const;
-
 const BRIEF = [
   { field: "type", label: "Celebration", value: "Wedding" },
   { field: "guests", label: "Guests", value: "300" },
@@ -42,15 +25,10 @@ export function SentenceDemo() {
           out the details and fills in your plan&rsquo;s starting point.
         </p>
         <p className={styles.sentence}>
-          {SENTENCE.map((part, i) =>
-            part.field ? (
-              <mark key={i} data-token={part.field}>
-                {part.text}
-              </mark>
-            ) : (
-              <span key={i}>{part.text}</span>
-            ),
-          )}
+          A <mark data-token="guests">300-guest</mark> <mark data-token="type">Telugu wedding</mark>{" "}
+          in <mark data-token="city">Hyderabad</mark> <mark data-token="date">next February</mark>,{" "}
+          <mark data-token="budget">₹25 lakh</mark>, with{" "}
+          <mark data-token="traditions">haldi and sangeet</mark>.
         </p>
         <dl className={styles.fields}>
           {BRIEF.map((f) => (

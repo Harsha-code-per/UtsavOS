@@ -61,10 +61,13 @@
   animation: fade 0.6s 0.5s both;
 }
 
+/* Flowers bloom left to right, 28ms apart. Browsers without sibling-index() bloom them together. */
 .toran[data-unfurl] .flowers > g > circle {
   transform-box: fill-box;
   transform-origin: center;
   animation: bloom 0.7s var(--ease-out) both;
+  animation-delay: 750ms;
+  animation-delay: calc(300ms + sibling-index() * 28ms);
 }
 
 @keyframes draw {
@@ -86,100 +89,4 @@
   from {
     transform: scale(0);
   }
-}
-.toran[data-unfurl] .flowers > g:nth-child(1) > circle {
-  animation-delay: 328ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(2) > circle {
-  animation-delay: 356ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(3) > circle {
-  animation-delay: 384ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(4) > circle {
-  animation-delay: 412ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(5) > circle {
-  animation-delay: 440ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(6) > circle {
-  animation-delay: 468ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(7) > circle {
-  animation-delay: 496ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(8) > circle {
-  animation-delay: 524ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(9) > circle {
-  animation-delay: 552ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(10) > circle {
-  animation-delay: 580ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(11) > circle {
-  animation-delay: 608ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(12) > circle {
-  animation-delay: 636ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(13) > circle {
-  animation-delay: 664ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(14) > circle {
-  animation-delay: 692ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(15) > circle {
-  animation-delay: 720ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(16) > circle {
-  animation-delay: 748ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(17) > circle {
-  animation-delay: 776ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(18) > circle {
-  animation-delay: 804ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(19) > circle {
-  animation-delay: 832ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(20) > circle {
-  animation-delay: 860ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(21) > circle {
-  animation-delay: 888ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(22) > circle {
-  animation-delay: 916ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(23) > circle {
-  animation-delay: 944ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(24) > circle {
-  animation-delay: 972ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(25) > circle {
-  animation-delay: 1000ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(26) > circle {
-  animation-delay: 1028ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(27) > circle {
-  animation-delay: 1056ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(28) > circle {
-  animation-delay: 1084ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(29) > circle {
-  animation-delay: 1112ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(30) > circle {
-  animation-delay: 1140ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(31) > circle {
-  animation-delay: 1168ms;
-}
-.toran[data-unfurl] .flowers > g:nth-child(32) > circle {
-  animation-delay: 1196ms;
 }

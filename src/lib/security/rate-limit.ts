@@ -8,7 +8,7 @@ export type RateLimitResult = { ok: true } | { ok: false; retryAfterSeconds: num
 
 /**
  * Fixed-window limiter keyed by client.
- * ponytail: in-memory, so each serverless instance counts separately; move to a shared store
+ * Limitation: in-memory, so each serverless instance counts separately; move to a shared store
  * (e.g. Upstash Redis) if abuse ever gets past per-instance limits.
  */
 export function createRateLimiter({ limit, windowMs, now = Date.now }: Options) {

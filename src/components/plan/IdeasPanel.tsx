@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { api } from "@/lib/api/client";
+import { api, errorMessage } from "@/lib/api/client";
 import type { IdeaDraft, IdeasResult } from "@/lib/ai/types";
 import type { Plan } from "@/lib/domain/schema";
 import type { ChangePlan } from "./PlanDashboard";
@@ -59,7 +59,7 @@ function FreshIdeas({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
       setAdded([]);
       setState({ busy: false });
     } catch (e) {
-      setState({ busy: false, error: (e as Error).message });
+      setState({ busy: false, error: errorMessage(e) });
     }
   }
 
