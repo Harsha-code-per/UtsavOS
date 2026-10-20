@@ -9,7 +9,9 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 }));
 const planner = vi.mocked(getPlanner);
 
-beforeEach(() => planner.mockReturnValue(mockPlanner));
+beforeEach(() => {
+  planner.mockReturnValue(mockPlanner);
+});
 
 describe("POST /api/brief", () => {
   it("returns the brief fields extracted from a description", async () => {

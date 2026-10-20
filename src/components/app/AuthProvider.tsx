@@ -1,0 +1,106 @@
+"use client";
+
+import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+import { firebaseConfigured, loadFirebase } from "@/lib/firebase/client";
+import { loadLocalPlans, mergePlans, saveLocalPlan } from "@/lib/store/local";
+import { listRemotePlans, saveRemotePlan } from "@/lib/store/remote";
+
+export interface User {
+  uid: string;
+  name: string;
+}
+
+interface AuthValue {
+  status: "loading" | "signedOut" | "signedIn" | "unavailable";
+  user: User | null;
+  error: string | null;
+  signIn(): Promise<void>;
+  signOut(): Promise<void>;
+}
+
+const AuthContext = createContext<AuthValue | null>(null);
+
+/** Uploads this device's plans and downloads the account's, keeping the newest copy of each. */
+async function syncPlans(uid: string) {
+  const local = loadLocalPlans();
+  const remote = await listRemotePlans(uid);
+  const remoteById = new Map(remote.map((p) => [p.id, p]));
+  for (const plan of mergePlans(local, remote)) {
+    saveLocalPlan(plan);
+    const copy = remoteById.get(plan.id);
+    if (!copy || copy.updatedAt < plan.updatedAt) await saveRemotePlan(uid, plan);
+  }
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = useState<AuthValue["status"]>(
+    firebaseConfigured ? "loading" : "unavailable",
+  );
+  const [user, setUser] = useState<User | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!firebaseConfigured) return;
+    let unsubscribe = () => {};
+    let cancelled = false;
+    void (async () => {
+      const [{ auth }, { onAuthStateChanged }] = await Promise.all([
+        loadFirebase(),
+        import("firebase/auth"),
+      ]);
+      if (cancelled) return;
+      unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+        if (!fbUser) {
+          setUser(null);
+          setStatus("signedOut");
+          return;
+        }
+        setUser({ uid: fbUser.uid, name: fbUser.displayName ?? fbUser.email ?? "You" });
+        setStatus("signedIn");
+        syncPlans(fbUser.uid).catch(() =>
+          setError("Couldn't sync your plans. They're safe on this device."),
+        );
+      });
+    })();
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
+
+  const signIn = useCallback(async () => {
+    setError(null);
+    try {
+      const [{ auth }, { GoogleAuthProvider, signInWithPopup }] = await Promise.all([
+        loadFirebase(),
+        import("firebase/auth"),
+      ]);
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      if (code !== "auth/popup-closed-by-user" && code !== "auth/cancelled-popup-request") {
+        setError("Sign-in didn't work. Allow pop-ups for this site and try again.");
+      }
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const [{ auth }, { signOut: fbSignOut }] = await Promise.all([
+      loadFirebase(),
+      import("firebase/auth"),
+    ]);
+    await fbSignOut(auth);
+  }, []);
+
+  const value = useMemo(
+    () => ({ status, user, error, signIn, signOut }),
+    [status, user, error, signIn, signOut],
+  );
+  return <AuthContext value={value}>{children}</AuthContext>;
+}
+
+export function useAuth(): AuthValue {
+  const value = use(AuthContext);
+  if (!value) throw new Error("useAuth must be used inside <AuthProvider>");
+  return value;
+}

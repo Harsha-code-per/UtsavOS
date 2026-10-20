@@ -134,3 +134,172 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* Buttons: one shape (pill), three weights. Minimum 44px touch target. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0 1.4rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.15s;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn-primary {
+  background: var(--marigold);
+  color: var(--night);
+  font-weight: 700;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #ffc35e;
+}
+
+.btn-ink {
+  background: var(--ink);
+  color: var(--diya);
+}
+
+.btn-ink:hover:not(:disabled) {
+  background: #2c2752;
+}
+
+.btn-outline {
+  border-color: currentColor;
+  background: transparent;
+  color: inherit;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.btn-small {
+  min-height: 44px;
+  padding: 0 1rem;
+  font-size: 0.9375rem;
+}
+
+/* Form fields */
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field > label,
+.field-label {
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 1rem;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.0625rem;
+}
+
+textarea.input {
+  padding: 0.8rem 1rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.input:hover {
+  border-color: var(--muted-on-ivory);
+}
+
+.input:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--kumkum);
+}
+
+.field-error {
+  color: var(--kumkum);
+  font-size: 0.9375rem;
+}
+
+.field-hint {
+  color: var(--muted-on-ivory);
+  font-size: 0.9375rem;
+}
+
+/* Toggle chips (aria-pressed) */
+.chip {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--marigold);
+  background: var(--marigold);
+  color: var(--night);
+  font-weight: 600;
+}
+
+.container {
+  width: min(100% - 2rem, 1320px);
+  margin-inline: auto;
+}
+
+@media (min-width: 720px) {
+  .container {
+    width: min(100% - 4rem, 1320px);
+  }
+}
+
+/* Vendor status pills (text always states the status; colour is a secondary cue). */
+[data-status] {
+  padding: 0.1rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+[data-status="booked"] {
+  background: var(--ok-bg);
+  color: var(--ok-fg);
+}
+
+[data-status="contacted"] {
+  background: var(--warn-bg);
+  color: var(--warn-fg);
+}
+
+[data-status="todo"] {
+  background: var(--todo-bg);
+  color: var(--body-on-ivory);
+}

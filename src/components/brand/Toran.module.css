@@ -1,0 +1,185 @@
+.toran {
+  display: block;
+  width: 100%;
+  height: clamp(64px, 8vw, 104px);
+  overflow: visible;
+}
+
+.string {
+  fill: none;
+  stroke: var(--leaf);
+  stroke-width: 2.5;
+}
+
+.leaves path {
+  fill: var(--leaf);
+}
+
+.flower {
+  --tone: var(--marigold);
+  transition:
+    opacity 0.5s var(--ease-out),
+    filter 0.5s var(--ease-out);
+}
+
+.flower[data-tone="sindoor"] {
+  --tone: var(--sindoor);
+}
+
+/* A ruffled ring reads as massed marigold petals at this size. */
+.ruffle {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 4;
+  stroke-dasharray: 2.2 1.6;
+}
+
+.petals {
+  fill: var(--tone);
+}
+
+.core {
+  fill: #8a4b0f;
+}
+
+.flower:not([data-lit]) {
+  opacity: 0.22;
+  filter: saturate(0);
+}
+
+.flower[data-lit] {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tone) 55%, transparent));
+}
+
+/* Unfurl: the string draws across, then flowers settle onto it left to right. */
+.toran[data-unfurl] .string {
+  stroke-dasharray: 1;
+  animation: draw 1.1s var(--ease-out) both;
+}
+
+.toran[data-unfurl] .leaves {
+  animation: fade 0.6s 0.5s both;
+}
+
+.toran[data-unfurl] .flowers > g > circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bloom 0.7s var(--ease-out) both;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes bloom {
+  from {
+    transform: scale(0);
+  }
+}
+.toran[data-unfurl] .flowers > g:nth-child(1) > circle {
+  animation-delay: 328ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(2) > circle {
+  animation-delay: 356ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(3) > circle {
+  animation-delay: 384ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(4) > circle {
+  animation-delay: 412ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(5) > circle {
+  animation-delay: 440ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(6) > circle {
+  animation-delay: 468ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(7) > circle {
+  animation-delay: 496ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(8) > circle {
+  animation-delay: 524ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(9) > circle {
+  animation-delay: 552ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(10) > circle {
+  animation-delay: 580ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(11) > circle {
+  animation-delay: 608ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(12) > circle {
+  animation-delay: 636ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(13) > circle {
+  animation-delay: 664ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(14) > circle {
+  animation-delay: 692ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(15) > circle {
+  animation-delay: 720ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(16) > circle {
+  animation-delay: 748ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(17) > circle {
+  animation-delay: 776ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(18) > circle {
+  animation-delay: 804ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(19) > circle {
+  animation-delay: 832ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(20) > circle {
+  animation-delay: 860ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(21) > circle {
+  animation-delay: 888ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(22) > circle {
+  animation-delay: 916ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(23) > circle {
+  animation-delay: 944ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(24) > circle {
+  animation-delay: 972ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(25) > circle {
+  animation-delay: 1000ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(26) > circle {
+  animation-delay: 1028ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(27) > circle {
+  animation-delay: 1056ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(28) > circle {
+  animation-delay: 1084ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(29) > circle {
+  animation-delay: 1112ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(30) > circle {
+  animation-delay: 1140ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(31) > circle {
+  animation-delay: 1168ms;
+}
+.toran[data-unfurl] .flowers > g:nth-child(32) > circle {
+  animation-delay: 1196ms;
+}

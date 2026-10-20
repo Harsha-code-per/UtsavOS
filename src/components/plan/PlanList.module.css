@@ -1,0 +1,78 @@
+.page {
+  padding-block: clamp(2.5rem, 5vw, 4rem) 5rem;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  line-height: 1;
+}
+
+.empty {
+  display: grid;
+  gap: 0.5rem;
+  padding: 2rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-l);
+  font-size: 1.125rem;
+}
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--paper);
+}
+
+.link {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem 1rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--ivory);
+}
+
+.name {
+  font-family: var(--font-display-stack);
+  font-size: 1.5rem;
+}
+
+.meta {
+  grid-row: 2;
+  color: var(--muted-on-ivory);
+}
+
+.days {
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--kumkum-deep);
+  font-weight: 600;
+}

@@ -10,7 +10,9 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 }));
 const planner = vi.mocked(getPlanner);
 
-beforeEach(() => planner.mockReturnValue(mockPlanner));
+beforeEach(() => {
+  planner.mockReturnValue(mockPlanner);
+});
 
 describe("POST /api/plan", () => {
   it("returns a valid plan drafted by the planner", async () => {

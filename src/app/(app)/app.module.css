@@ -1,0 +1,32 @@
+.bar {
+  background: var(--night);
+  color: var(--diya);
+}
+
+.barInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-block: 0.6rem;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+}
+
+.nav > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--body-on-night);
+  text-decoration: none;
+}
+
+.nav > a:hover {
+  color: var(--diya);
+}

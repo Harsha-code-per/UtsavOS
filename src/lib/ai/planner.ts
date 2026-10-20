@@ -216,13 +216,21 @@ export const mockPlanner: Planner = {
   },
   async chat(plan, messages) {
     const last = messages.at(-1)?.text ?? "";
-    const [to, from] = [plan.budget[0], plan.budget.at(-1)];
-    if (/budget|over|money/i.test(last) && to && from && from !== to && from.allocated >= 2) {
-      const amount = Math.max(1, Math.floor(from.allocated / 4));
-      return {
-        reply: `Move ${amount} from ${from.category} to ${to.category}.`,
-        changes: [{ op: "moveBudget", from: from.id, to: to.id, amount }],
-      };
+    if (/budget|over|money|rebalance/i.test(last)) {
+      const room = (l: Plan["budget"][number]) => l.allocated - l.spent;
+      const over = plan.budget.find((l) => l.spent > l.allocated);
+      const to = over ?? plan.budget[0]!;
+      const from = plan.budget.filter((l) => l.id !== to.id).sort((a, b) => room(b) - room(a))[0];
+      const amount = Math.min(
+        over ? over.spent - over.allocated : Math.floor((from?.allocated ?? 0) / 4),
+        from ? room(from) : 0,
+      );
+      if (from && amount > 0) {
+        return {
+          reply: `Move ${amount} from ${from.category} to ${to.category}.`,
+          changes: [{ op: "moveBudget", from: from.id, to: to.id, amount }],
+        };
+      }
     }
     return {
       reply: "Happy to help. Ask me to move budget, add a task or suggest ideas.",

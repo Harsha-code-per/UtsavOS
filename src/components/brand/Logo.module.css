@@ -1,0 +1,23 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  font-family: var(--font-display-stack);
+  font-size: 1.5rem;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--diya);
+}
+
+.logo[data-tone="ivory"] {
+  color: var(--ink);
+}
+
+.flame {
+  stroke: var(--marigold);
+}
+
+.wick {
+  fill: var(--sindoor);
+}

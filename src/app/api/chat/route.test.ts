@@ -9,7 +9,9 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 }));
 const planner = vi.mocked(getPlanner);
 
-beforeEach(() => planner.mockReturnValue(mockPlanner));
+beforeEach(() => {
+  planner.mockReturnValue(mockPlanner);
+});
 
 const ask = (text: string) => postJson({ plan: weddingPlan, messages: [{ role: "user", text }] });
 

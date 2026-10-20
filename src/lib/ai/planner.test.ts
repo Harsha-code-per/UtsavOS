@@ -147,9 +147,16 @@ describe("mockPlanner", () => {
     expect(await mockPlanner.draftPlan(brief, "2026-10-20")).toEqual(fallbackDraft(brief));
   });
 
-  it("proposes a valid budget move when asked about the budget", async () => {
-    const { changes } = await mockPlanner.chat(plan, [{ role: "user", text: "fix my budget" }]);
-    expect(changes[0]).toMatchObject({ op: "moveBudget" });
+  it("proposes moving spare money into an overspent category", async () => {
+    const decor = plan.budget.find((l) => l.id === "decor")!;
+    const overspent = {
+      ...plan,
+      budget: plan.budget.map((l) => (l.id === "decor" ? { ...l, spent: l.allocated + 8000 } : l)),
+    };
+    const { changes } = await mockPlanner.chat(overspent, [
+      { role: "user", text: "fix my budget" },
+    ]);
+    expect(changes[0]).toMatchObject({ op: "moveBudget", to: decor.id, amount: 8000 });
   });
 });
 
