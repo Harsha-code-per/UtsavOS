@@ -4,7 +4,7 @@ import { useState } from "react";
 import { categoryName, formatMoney, parseAmount } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
 import { FormStatus, failure, outcome, type Status } from "./FormStatus";
-import type { ChangePlan } from "./PlanDashboard";
+import type { ChangePlan } from "./change-plan";
 import panel from "./panel.module.css";
 
 /** Records a payment against one budget category. */

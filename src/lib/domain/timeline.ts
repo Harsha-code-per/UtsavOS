@@ -7,6 +7,9 @@ const DAY_MS = 86_400_000;
 const toUtc = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 const fromUtc = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
+/** The person's own calendar date (in the browser), which the server accepts within a day of its own. */
+export const localToday = () => new Date().toLocaleDateString("en-CA");
+
 export function addDays(iso: string, days: number): string {
   return fromUtc(toUtc(iso) + days * DAY_MS);
 }

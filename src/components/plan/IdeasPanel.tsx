@@ -4,7 +4,7 @@ import { useState } from "react";
 import { api, errorMessage } from "@/lib/api/client";
 import type { IdeaDraft, IdeasResult } from "@/lib/ai/types";
 import type { Plan } from "@/lib/domain/schema";
-import type { ChangePlan } from "./PlanDashboard";
+import type { ChangePlan } from "./change-plan";
 import styles from "./IdeasPanel.module.css";
 import panel from "./panel.module.css";
 

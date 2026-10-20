@@ -15,7 +15,7 @@ export function CoPlannerShowcase() {
             applies them only when you say yes.
           </p>
         </div>
-        <div className={styles.chat} aria-label="Example conversation">
+        <div className={styles.chat} role="figure" aria-label="Example conversation">
           <p className={styles.you}>
             Decor is ₹40,000 over. Can we fix it without touching catering?
           </p>

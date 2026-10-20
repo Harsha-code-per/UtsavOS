@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { formatMoney } from "@/lib/domain/format";
+import { formatMoney, parseAmount } from "@/lib/domain/format";
 import { VENDOR_STATUSES, VendorSchema, type Plan, type Vendor } from "@/lib/domain/schema";
 import { FormStatus, failure, outcome, type Status } from "./FormStatus";
-import type { ChangePlan } from "./PlanDashboard";
+import type { ChangePlan } from "./change-plan";
 import panel from "./panel.module.css";
 import styles from "./VendorsPanel.module.css";
 
@@ -30,7 +30,7 @@ function QuoteForm({
 
   function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    const value = quote.trim() ? Number(quote.replace(/[^\d]/g, "")) : null;
+    const value = quote.trim() ? parseAmount(quote) : null;
     const error = onChange({
       op: "setVendorStatus",
       id: vendor.id,

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { weddingBrief } from "@/test/fixtures";
-import { api, errorMessage, isAbort, localToday } from "./client";
+import { localToday } from "@/lib/domain/timeline";
+import { api, errorMessage, isAbort } from "./client";
 
 afterEach(() => {
   vi.unstubAllGlobals();

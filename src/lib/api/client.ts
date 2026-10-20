@@ -1,8 +1,6 @@
 import type { BriefPatch, ChatMessage, IdeaDraft, Source } from "@/lib/ai/planner";
 import type { Brief, Plan, PlanChange } from "@/lib/domain/schema";
-
-/** The person's own calendar date, which the server accepts within a day of its own. */
-export const localToday = () => new Date().toLocaleDateString("en-CA");
+import { localToday } from "@/lib/domain/timeline";
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
 

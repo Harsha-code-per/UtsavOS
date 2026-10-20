@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { PlanChange } from "@/lib/domain/schema";
 import { usePlanActions, usePlanList } from "@/lib/store/usePlans";
 import { BudgetPanel } from "./BudgetPanel";
+import type { ChangePlan } from "./change-plan";
 import { CoPlanner } from "./CoPlanner";
 import { IdeasPanel } from "./IdeasPanel";
 import { PlanHeader } from "./PlanHeader";
@@ -15,7 +15,6 @@ import { TimelinePanel } from "./TimelinePanel";
 import { VendorsPanel } from "./VendorsPanel";
 
 /** Applies plan changes; returns an error message to show, or null on success. */
-export type ChangePlan = (...changes: PlanChange[]) => string | null;
 
 function Loading() {
   return (
@@ -61,7 +60,8 @@ export function PlanDashboard({ id, starter }: { id: string; starter: boolean })
       return e instanceof Error ? e.message : "That change couldn't be applied.";
     }
   };
-  const ask = (text: string) => setQuestion({ text, key: Date.now() });
+  // A new key each time, so asking the same question twice still reaches the co-planner.
+  const ask = (text: string) => setQuestion((q) => ({ text, key: (q?.key ?? 0) + 1 }));
   const panels: Record<TabId, React.ReactNode> = {
     budget: <BudgetPanel plan={plan} onChange={change} onAsk={ask} />,
     timeline: <TimelinePanel plan={plan} onChange={change} />,

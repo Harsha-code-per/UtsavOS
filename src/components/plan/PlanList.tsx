@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { localToday } from "@/lib/api/client";
 import { formatDate } from "@/lib/domain/format";
-import { daysUntil } from "@/lib/domain/timeline";
+import { daysUntil, localToday } from "@/lib/domain/timeline";
 import { usePlanActions, usePlanList } from "@/lib/store/usePlans";
 import { useAuth } from "@/components/app/AuthProvider";
 import styles from "./PlanList.module.css";

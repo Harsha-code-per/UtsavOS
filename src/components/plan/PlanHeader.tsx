@@ -1,8 +1,7 @@
-import { localToday } from "@/lib/api/client";
 import { summarizeBudget } from "@/lib/domain/budget";
 import { EVENT_TYPE_LABEL, formatDate } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
-import { daysUntil } from "@/lib/domain/timeline";
+import { daysUntil, localToday } from "@/lib/domain/timeline";
 import type { SaveState } from "@/lib/store/usePlans";
 import styles from "./PlanDashboard.module.css";
 

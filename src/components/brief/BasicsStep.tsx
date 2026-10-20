@@ -1,4 +1,4 @@
-import { localToday } from "@/lib/api/client";
+import { localToday } from "@/lib/domain/timeline";
 import { EVENT_TYPE_LABEL, formatMoney, parseAmount } from "@/lib/domain/format";
 import { BriefSchema, CURRENCIES, EVENT_TYPES, type Brief } from "@/lib/domain/schema";
 import styles from "./BriefWizard.module.css";

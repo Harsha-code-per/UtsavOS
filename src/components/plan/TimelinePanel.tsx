@@ -1,13 +1,12 @@
 "use client";
 
-import { localToday } from "@/lib/api/client";
 import { formatDate } from "@/lib/domain/format";
 import { googleCalendarUrl, planToIcs } from "@/lib/domain/ics";
 import type { Milestone, Plan } from "@/lib/domain/schema";
 import { slugify } from "@/lib/domain/slug";
-import { daysUntil } from "@/lib/domain/timeline";
+import { daysUntil, localToday } from "@/lib/domain/timeline";
 import { AddTaskForm } from "./AddTaskForm";
-import type { ChangePlan } from "./PlanDashboard";
+import type { ChangePlan } from "./change-plan";
 import panel from "./panel.module.css";
 import styles from "./TimelinePanel.module.css";
 
