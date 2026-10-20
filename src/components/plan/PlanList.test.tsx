@@ -2,11 +2,11 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuth } from "@/components/app/AuthProvider";
-import { usePlanActions, usePlanList } from "@/lib/store/usePlans";
+import { usePlanActions, usePlanList } from "@/components/app/usePlans";
 import { weddingPlan } from "@/test/fixtures";
 import { PlanList } from "./PlanList";
 
-vi.mock("@/lib/store/usePlans", () => ({ usePlanList: vi.fn(), usePlanActions: vi.fn() }));
+vi.mock("@/components/app/usePlans", () => ({ usePlanList: vi.fn(), usePlanActions: vi.fn() }));
 vi.mock("@/components/app/AuthProvider", () => ({ useAuth: vi.fn() }));
 const remove = vi.fn();
 

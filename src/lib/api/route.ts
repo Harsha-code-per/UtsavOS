@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import { AiError, getPlanner, type Planner } from "@/lib/ai/planner";
 import { clientKey, createRateLimiter } from "@/lib/security/rate-limit";
-import { errorResponse, rateLimited, readJson, type ReadResult } from "./http";
+import { errorResponse, rateLimited, readJson } from "./http";
 
 interface GuardOptions<S extends z.ZodType> {
   schema: S;
@@ -11,12 +11,16 @@ interface GuardOptions<S extends z.ZodType> {
 }
 
 /** The shared front door of every API route: a per-client rate limit, then a validated body. */
-export function guardedBody<S extends z.ZodType>({ schema, limit, maxBytes }: GuardOptions<S>) {
+export function guardedRoute<S extends z.ZodType>(
+  { schema, limit, maxBytes }: GuardOptions<S>,
+  handle: (body: z.infer<S>) => Promise<Response>,
+) {
   const limiter = createRateLimiter({ limit, windowMs: 60_000 });
-  return async (request: Request): Promise<ReadResult<z.infer<S>>> => {
+  return async (request: Request): Promise<Response> => {
     const check = limiter.check(clientKey(request));
-    if (!check.ok) return { ok: false, response: rateLimited(check.retryAfterSeconds) };
-    return readJson(request, schema, maxBytes);
+    if (!check.ok) return rateLimited(check.retryAfterSeconds);
+    const body = await readJson(request, schema, maxBytes);
+    return body.ok ? handle(body.data) : body.response;
   };
 }
 
@@ -30,17 +34,14 @@ export function aiRoute<S extends z.ZodType>(
   options: AiRouteOptions<S>,
   handle: (body: z.infer<S>, planner: Planner) => Promise<Response>,
 ) {
-  const read = guardedBody(options);
-  return async (request: Request): Promise<Response> => {
-    const body = await read(request);
-    if (!body.ok) return body.response;
+  return guardedRoute(options, async (body) => {
     const planner = getPlanner();
     if (!planner) return errorResponse(503, options.unconfigured);
     try {
-      return await handle(body.data, planner);
+      return await handle(body, planner);
     } catch (error) {
       if (error instanceof AiError) return errorResponse(502, error.message);
       throw error;
     }
-  };
+  });
 }

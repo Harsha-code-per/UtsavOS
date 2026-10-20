@@ -6,7 +6,7 @@ import { putDescription } from "@/lib/store/handoff";
 import { BriefWizard } from "./BriefWizard";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
-vi.mock("@/lib/store/usePlans", () => ({ usePlanActions: () => ({ save: vi.fn() }) }));
+vi.mock("@/components/app/usePlans", () => ({ usePlanActions: () => ({ save: vi.fn() }) }));
 vi.mock("@/lib/api/client", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api/client")>()),
   api: { parseBrief: vi.fn(), draftPlan: vi.fn() },

@@ -17,6 +17,9 @@ export const LANGUAGES = {
 export const VENDOR_STATUSES = ["todo", "contacted", "booked"] as const;
 export const IDEA_KINDS = ["theme", "decor", "menu", "activity", "gift"] as const;
 
+/** Any plain object, for picking fields out of untrusted JSON without a cast. */
+export const LooseObject = z.record(z.string(), z.unknown());
+
 const text = (max: number) => z.string().trim().min(1).max(max);
 const isoDate = z.iso.date();
 

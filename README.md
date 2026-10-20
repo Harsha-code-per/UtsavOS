@@ -76,7 +76,7 @@ src/
   lib/ai/              planner facade, Gemini adapter (model chain), mock, prompts, tools, output guards
   lib/api/             shared route guard, HTTP helpers, TTL cache, typed browser client
   lib/security/        CSP builder, rate limiter
-  lib/store/           local + Firestore persistence, React hooks
+  lib/store/           local + Firestore persistence
   proxy.ts             nonce-based Content-Security-Policy
 e2e/                   Playwright flows, axe accessibility audits, security checks
 rules/                 Firestore security-rules tests (emulator)
@@ -114,7 +114,7 @@ Defence in depth, detailed in [SECURITY.md](SECURITY.md):
 
 ## Efficiency
 
-Lighthouse on the live site scores **100** for Accessibility, Best Practices and SEO on both desktop and mobile, with 0 failed audits. A performance trace shows **LCP 507 ms** and **CLS 0.00**.
+Lighthouse (Chrome DevTools, October 2026) on the live site scores **100** for Accessibility, Best Practices and SEO on both desktop and mobile, with 0 failed audits. A performance trace of the landing page showed **LCP 507 ms** and **CLS 0.00**.
 
 - Firebase, GSAP and Lenis are **lazy-loaded** with dynamic `import()`. The landing page never downloads Firebase.
 - The landing load sequence is pure CSS, with no JavaScript gate or layout shift. Fonts are self-hosted with `next/font`.
@@ -137,7 +137,7 @@ CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs four parallel j
 - **Size and complexity budgets, enforced in CI.** At most 250 lines per file, 80 lines per function, cyclomatic complexity 10, nesting depth 3 and 3 parameters ([`eslint.config.mjs`](eslint.config.mjs)).
 - **Layered design.** `lib/domain` is pure and framework-free. Each kind of plan change is a typed entry in an exhaustive table ([`plan.ts`](src/lib/domain/plan.ts)), so adding one is a compile error until it is handled everywhere. UI components stay small and keep logic in hooks (`use*.ts`) or pure modules such as [`brief-form.ts`](src/components/brief/brief-form.ts).
 - **No unchecked assumptions** in application code: no `any`, no non-null assertions, and model output is validated before use.
-- **Coverage floors.** Lines, statements and functions 90%, branches 80%, enforced by Vitest (currently about 96% of lines). Code duplication is under 0.1% (jscpd).
+- **Coverage floors.** Lines, statements and functions 90%, branches 80%, enforced by Vitest (currently about 96% of lines). Code duplication is under 0.1%, checked in CI with `npm run duplication` (jscpd fails the build above 1%).
 
 ## Run it locally
 

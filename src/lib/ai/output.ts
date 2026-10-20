@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BriefSchema, type Brief } from "@/lib/domain/schema";
+import { BriefSchema, LooseObject, type Brief } from "@/lib/domain/schema";
 import { AiError, IdeaDraftSchema, type BriefPatch, type IdeaDraft, type Source } from "./types";
 
 // Model output is untrusted: everything here validates or cleans it before the app uses it.
@@ -18,8 +18,9 @@ export const jsonArrayIn = (text: string) =>
 
 /** Keeps each brief field that validates on its own, so one bad guess doesn't lose the rest. */
 export function validBriefPatch(raw: unknown): BriefPatch {
-  if (typeof raw !== "object" || raw === null) return {};
-  const source = raw as Record<string, unknown>;
+  const parsed = LooseObject.safeParse(raw);
+  if (!parsed.success) return {};
+  const source = parsed.data;
   const patch: Record<string, unknown> = {};
   for (const [key, field] of Object.entries(BriefSchema.shape)) {
     const value = field.safeParse(source[key]);

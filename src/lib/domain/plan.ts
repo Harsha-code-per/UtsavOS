@@ -3,6 +3,7 @@ import { allocateBudget, moveBudget } from "./budget";
 import {
   DRAFT_ITEMS,
   DRAFT_LIMITS,
+  LooseObject,
   PlanSchema,
   RunSheetItemSchema,
   type Brief,
@@ -41,8 +42,9 @@ const asList = (value: unknown): unknown[] => (Array.isArray(value) ? value : []
  * limits. Returns null when nothing usable is left (no budget split).
  */
 export function sanitizeDraft(raw: unknown): PlanDraft | null {
-  if (typeof raw !== "object" || raw === null) return null;
-  const source = raw as Record<string, unknown>;
+  const parsed = LooseObject.safeParse(raw);
+  if (!parsed.success) return null;
+  const source = parsed.data;
 
   const pick = <K extends keyof typeof DRAFT_ITEMS>(key: K, prepare = (item: unknown) => item) =>
     asList(source[key])
@@ -57,11 +59,12 @@ export function sanitizeDraft(raw: unknown): PlanDraft | null {
     milestones: pick("milestones"),
     runSheet: pick("runSheet"),
     vendors: pick("vendors", (item) => {
-      if (typeof item !== "object" || item === null) return item;
-      const questions = asList((item as { questions?: unknown }).questions)
+      const vendor = LooseObject.safeParse(item);
+      if (!vendor.success) return item;
+      const questions = asList(vendor.data.questions)
         .filter((q): q is string => typeof q === "string" && q.trim().length > 0 && q.length <= 200)
         .slice(0, 6);
-      return { ...item, questions };
+      return { ...vendor.data, questions };
     }),
     ideas: pick("ideas"),
   };

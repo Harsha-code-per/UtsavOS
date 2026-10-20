@@ -11,6 +11,7 @@ export function LandingMotion() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let cleanup: (() => void) | undefined;
+    const page = { left: false };
 
     void (async () => {
       const [{ gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([
@@ -18,6 +19,8 @@ export function LandingMotion() {
         import("gsap/ScrollTrigger"),
         import("lenis"),
       ]);
+      // The visitor may have navigated away while the libraries loaded.
+      if (page.left) return;
       gsap.registerPlugin(ScrollTrigger);
 
       const lenis = new Lenis({ lerp: 0.12 });
@@ -59,7 +62,10 @@ export function LandingMotion() {
       };
     })();
 
-    return () => cleanup?.();
+    return () => {
+      page.left = true;
+      cleanup?.();
+    };
   }, []);
 
   return null;

@@ -53,4 +53,20 @@ describe("landing page", () => {
     render(<Home />);
     expect(screen.getByRole("img", { name: /Budget split: catering 30%/ })).toBeInTheDocument();
   });
+
+  it("links the primary navigation to sections that exist", () => {
+    const { container } = render(<Home />);
+    const nav = screen.getByRole("navigation", { name: "Primary" });
+    const anchors = within(nav)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href") ?? "")
+      .filter((href) => href.startsWith("#"));
+    expect(anchors.length).toBeGreaterThan(0);
+    for (const href of anchors) expect(container.querySelector(href)).not.toBeNull();
+  });
+
+  it("marks Hindi text so screen readers pronounce it correctly", () => {
+    render(<Home />);
+    expect(screen.getByText("संगीत के लिए कुछ गाने सुझाओ")).toHaveAttribute("lang", "hi");
+  });
 });

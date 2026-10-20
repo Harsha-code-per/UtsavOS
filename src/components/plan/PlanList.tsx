@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { formatDate } from "@/lib/domain/format";
 import { daysUntil, localToday } from "@/lib/domain/timeline";
-import { usePlanActions, usePlanList } from "@/lib/store/usePlans";
+import { usePlanActions, usePlanList } from "@/components/app/usePlans";
 import { useAuth } from "@/components/app/AuthProvider";
 import styles from "./PlanList.module.css";
 

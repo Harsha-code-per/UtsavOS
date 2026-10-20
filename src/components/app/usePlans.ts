@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import { useAuth } from "@/components/app/AuthProvider";
+import { useAuth } from "./AuthProvider";
 import { applyChange } from "@/lib/domain/plan";
 import type { Plan, PlanChange } from "@/lib/domain/schema";
 import {
@@ -9,9 +9,14 @@ import {
   removeLocalPlan,
   saveLocalPlan,
   subscribeLocalPlans,
-} from "./local";
-import { deleteRemotePlan, saveRemotePlan } from "./remote";
-import { getSaveStatus, setSaveStatus, subscribeSaveStatus, type SaveStatus } from "./save-status";
+} from "@/lib/store/local";
+import { deleteRemotePlan, saveRemotePlan } from "@/lib/store/remote";
+import {
+  getSaveStatus,
+  setSaveStatus,
+  subscribeSaveStatus,
+  type SaveStatus,
+} from "@/lib/store/save-status";
 
 export type SaveState = SaveStatus;
 

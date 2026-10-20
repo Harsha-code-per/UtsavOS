@@ -1,11 +1,11 @@
-import { PlanSchema, type Plan } from "@/lib/domain/schema";
+import { LooseObject, PlanSchema, type Plan } from "@/lib/domain/schema";
 
 const KEY = "utsavos.plans";
 
 function readAll(): Record<string, unknown> {
   try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(KEY) ?? "{}");
-    return typeof parsed === "object" && parsed !== null ? (parsed as Record<string, unknown>) : {};
+    const parsed = LooseObject.safeParse(JSON.parse(localStorage.getItem(KEY) ?? "{}"));
+    return parsed.success ? parsed.data : {};
   } catch {
     return {}; // corrupted JSON, or storage blocked (private mode)
   }

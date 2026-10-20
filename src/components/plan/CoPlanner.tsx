@@ -48,7 +48,7 @@ function Composer({ value, busy, listening, onChange, onListen, onSubmit }: Comp
       <button
         type="button"
         className={styles.iconButton}
-        aria-label={listening ? "Listening…" : "Speak your message"}
+        aria-label="Speak your message"
         aria-pressed={listening}
         onClick={onListen}
       >

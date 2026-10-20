@@ -2,7 +2,7 @@ import { z } from "zod";
 import { AiError, getPlanner } from "@/lib/ai/planner";
 import { createTtlCache } from "@/lib/api/cache";
 import { errorResponse, json } from "@/lib/api/http";
-import { guardedBody } from "@/lib/api/route";
+import { guardedRoute } from "@/lib/api/route";
 import { buildPlan, fallbackDraft } from "@/lib/domain/plan";
 import { BriefSchema, type Brief, type PlanDraft } from "@/lib/domain/schema";
 import { trustedToday } from "@/lib/domain/timeline";
@@ -10,7 +10,6 @@ import { trustedToday } from "@/lib/domain/timeline";
 export const maxDuration = 60;
 
 const Body = z.object({ brief: BriefSchema, today: z.iso.date().optional() });
-const read = guardedBody({ schema: Body, limit: 8 });
 
 interface Drafted {
   draft: PlanDraft;
@@ -45,12 +44,9 @@ async function draftFor(brief: Brief, today: string): Promise<Drafted> {
 }
 
 /** Drafts a full plan with Gemini; falls back to a starter template so planning never dead-ends. */
-export async function POST(request: Request) {
-  const body = await read(request);
-  if (!body.ok) return body.response;
-  const { brief } = body.data;
-  const today = trustedToday(body.data.today);
-
+export const POST = guardedRoute({ schema: Body, limit: 8 }, async (body) => {
+  const { brief } = body;
+  const today = trustedToday(body.today);
   const { draft, source, notice } = await draftFor(brief, today);
   try {
     const plan = buildPlan(brief, draft, { id: crypto.randomUUID(), today, now: new Date() });
@@ -61,4 +57,4 @@ export async function POST(request: Request) {
       "This plan couldn't be built. Check the budget and date, then try again.",
     );
   }
-}
+});

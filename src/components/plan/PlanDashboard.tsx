@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePlanActions, usePlanList } from "@/lib/store/usePlans";
+import { usePlanActions, usePlanList } from "@/components/app/usePlans";
 import { BudgetPanel } from "./BudgetPanel";
 import type { ChangePlan } from "./change-plan";
 import { CoPlanner } from "./CoPlanner";

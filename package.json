@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:rules": "npx -y firebase-tools@15.34.0 emulators:exec --only firestore --project demo-utsavos \"vitest run --config vitest.rules.config.mts\""
+    "test:rules": "npx -y firebase-tools@15.34.0 emulators:exec --only firestore --project demo-utsavos \"vitest run --config vitest.rules.config.mts\"",
+    "duplication": "npx -y jscpd@4.0.5 src --min-tokens 50 --threshold 1 --silent --ignore \"**/*.test.*\""
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

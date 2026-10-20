@@ -2,7 +2,7 @@ import { summarizeBudget } from "@/lib/domain/budget";
 import { EVENT_TYPE_LABEL, formatDate } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
 import { daysUntil, localToday } from "@/lib/domain/timeline";
-import type { SaveState } from "@/lib/store/usePlans";
+import type { SaveState } from "@/components/app/usePlans";
 import styles from "./PlanDashboard.module.css";
 
 const SAVE_LABEL: Record<SaveState, string> = {

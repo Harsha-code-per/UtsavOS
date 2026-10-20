@@ -7,7 +7,7 @@ import { usePlanGeneration } from "./usePlanGeneration";
 const push = vi.fn();
 const save = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-vi.mock("@/lib/store/usePlans", () => ({ usePlanActions: () => ({ save }) }));
+vi.mock("@/components/app/usePlans", () => ({ usePlanActions: () => ({ save }) }));
 vi.mock("@/lib/api/client", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api/client")>()),
   api: { draftPlan: vi.fn() },

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getPlanner, mockPlanner } from "@/lib/ai/planner";
+import { AiError, getPlanner, mockPlanner } from "@/lib/ai/planner";
 import { postJson, weddingBrief } from "@/test/fixtures";
 import { POST } from "./route";
 
@@ -39,5 +39,26 @@ describe("POST /api/ideas", () => {
   it("returns 503 when AI is not configured", async () => {
     planner.mockReturnValue(null);
     expect((await POST(postJson({ brief: weddingBrief }))).status).toBe(503);
+  });
+
+  it("returns 502 with a friendly message when Gemini fails", async () => {
+    planner.mockReturnValue({
+      ...mockPlanner,
+      ideas: () => Promise.reject(new AiError("Gemini is busy. Try again in a minute.")),
+    });
+    const brief = { ...weddingBrief, name: "Ideas failure check" };
+    const res = await POST(postJson({ brief }));
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: "Gemini is busy. Try again in a minute." });
+  });
+
+  it("limits each client to 8 requests a minute", async () => {
+    const statuses = [];
+    for (let i = 0; i < 9; i++) {
+      const brief = { ...weddingBrief, name: `Rate check ${i}` };
+      statuses.push((await POST(postJson({ brief }, "203.0.113.50"))).status);
+    }
+    expect(statuses.slice(0, 8).every((s) => s === 200)).toBe(true);
+    expect(statuses[8]).toBe(429);
   });
 });
