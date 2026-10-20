@@ -74,13 +74,23 @@ src/
   components/          brand (toran, logo), landing, brief wizard, plan dashboard panels
   lib/domain/          pure, framework-free logic: schema, budget, timeline, ics, plan, format
   lib/ai/              planner facade, Gemini adapter (model chain), mock, prompts, tools, output guards
-  lib/api/             request guard, TTL cache, typed browser client
+  lib/api/             shared route guard, HTTP helpers, TTL cache, typed browser client
   lib/security/        CSP builder, rate limiter
   lib/store/           local + Firestore persistence, React hooks
   proxy.ts             nonce-based Content-Security-Policy
 e2e/                   Playwright flows, axe accessibility audits, security checks
 rules/                 Firestore security-rules tests (emulator)
 ```
+
+### Design decisions
+
+- **Gemini proposes, code guarantees.** Gemini returns percentages and lead times. Code turns them into exact amounts that add up to the budget and real dates before the event, so the maths is never the model's job.
+- **The person approves every AI edit.** The co-planner's function calls become typed `PlanChange`s. The server drops any change that wouldn't apply, and the rest wait for an Apply click.
+- **Local first, synced when signed in.** Plans save to the device instantly and work without an account. Signing in with Google syncs them through Firestore, keeping the newest copy of each.
+- **Planning never dead-ends.** A model chain with a time budget falls back from Gemini 3.8 Flash to Flash-Lite, then to a hand-written starter plan that can be redrafted later.
+- **Nonce CSP over static pages.** Every page is rendered per request so it can carry a fresh script nonce. Strict CSP without `unsafe-inline` was worth more here than CDN caching of the HTML.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for layer rules and conventions.
 
 ## Security
 
@@ -119,7 +129,7 @@ Lighthouse on the live site scores **100** for Accessibility, Best Practices and
 | Firestore rules (emulator)                    | `npm run test:rules`            | owner-only access, cross-user denial, malformed documents                                                                        |
 | End-to-end (Playwright, desktop + Pixel 7)    | `npm run test:e2e`              | brief → plan → overspend → approved fix → calendar export; persistence; axe audits; CSP and header checks                        |
 
-CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `npm audit`, Prettier, ESLint, the type check, unit tests with coverage, rules tests and the end-to-end suite on every push.
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs four parallel jobs on every push and pull request: static checks (`npm audit`, Prettier, ESLint, types), unit tests with coverage, rules tests, and the end-to-end suite. Coverage and Playwright reports are uploaded as artifacts, and Dependabot keeps dependencies and actions current.
 
 ## Code quality
 

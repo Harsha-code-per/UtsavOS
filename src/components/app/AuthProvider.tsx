@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ]);
       await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (e) {
-      const code = (e as { code?: string }).code;
+      const code = typeof e === "object" && e !== null && "code" in e ? e.code : undefined;
       if (code !== "auth/popup-closed-by-user" && code !== "auth/cancelled-popup-request") {
         setError("Sign-in didn't work. Allow pop-ups for this site and try again.");
       }

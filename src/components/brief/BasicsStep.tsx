@@ -1,6 +1,6 @@
 import { localToday } from "@/lib/api/client";
 import { EVENT_TYPE_LABEL, formatMoney, parseAmount } from "@/lib/domain/format";
-import { CURRENCIES, EVENT_TYPES, type Brief } from "@/lib/domain/schema";
+import { BriefSchema, CURRENCIES, EVENT_TYPES, type Brief } from "@/lib/domain/schema";
 import styles from "./BriefWizard.module.css";
 import { FieldError } from "./FieldError";
 import type { StepProps } from "./step-props";
@@ -53,7 +53,7 @@ function BudgetField({ form, set, errors, fieldProps }: Omit<StepProps, "heading
           className="input"
           {...fieldProps("currency")}
           value={form.currency}
-          onChange={(e) => set("currency", e.target.value as Brief["currency"])}
+          onChange={(e) => set("currency", BriefSchema.shape.currency.parse(e.target.value))}
         >
           {CURRENCIES.map((c) => (
             <option key={c}>{c}</option>

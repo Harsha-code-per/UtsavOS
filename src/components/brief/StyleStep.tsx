@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LANGUAGES, type Brief } from "@/lib/domain/schema";
+import { BriefSchema, LANGUAGES, type Brief } from "@/lib/domain/schema";
 import { TRADITIONS } from "@/lib/domain/traditions";
 import { DIETS, addTradition, toggleTradition } from "./brief-form";
 import styles from "./BriefWizard.module.css";
@@ -93,7 +93,7 @@ function StyleFields({ form, set, fieldProps }: Pick<StepProps, "form" | "set" |
           className="input"
           {...fieldProps("language")}
           value={form.language}
-          onChange={(e) => set("language", e.target.value as Brief["language"])}
+          onChange={(e) => set("language", BriefSchema.shape.language.parse(e.target.value))}
         >
           {Object.entries(LANGUAGES).map(([code, label]) => (
             <option key={code} value={code} lang={code}>

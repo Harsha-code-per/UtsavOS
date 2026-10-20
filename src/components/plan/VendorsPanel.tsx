@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatMoney } from "@/lib/domain/format";
-import { VENDOR_STATUSES, type Plan, type Vendor } from "@/lib/domain/schema";
+import { VENDOR_STATUSES, VendorSchema, type Plan, type Vendor } from "@/lib/domain/schema";
 import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import type { ChangePlan } from "./PlanDashboard";
 import panel from "./panel.module.css";
@@ -84,7 +84,7 @@ function VendorRow({ vendor, plan, onChange }: RowProps) {
             id={`status-${vendor.id}`}
             className="input"
             value={vendor.status}
-            onChange={(e) => changeStatus(e.target.value as Vendor["status"])}
+            onChange={(e) => changeStatus(VendorSchema.shape.status.parse(e.target.value))}
           >
             {VENDOR_STATUSES.map((s) => (
               <option key={s} value={s}>

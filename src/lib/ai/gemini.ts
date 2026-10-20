@@ -55,7 +55,7 @@ function shouldTryNextModel(error: unknown): boolean {
   if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
     return true;
   }
-  const status = (error as { status?: unknown } | null)?.status;
+  const status = typeof error === "object" && error !== null && "status" in error && error.status;
   return typeof status === "number" && FALL_THROUGH.has(status);
 }
 
