@@ -72,9 +72,12 @@ ${DATA_RULE}
 ${fenceData("plan", planSnapshot(plan))}`;
 }
 
-export function ideasPrompt(brief: Brief): string {
+export function ideasPrompt(brief: Brief, grounded: boolean): string {
+  const local = grounded
+    ? `Use Google Search to ground local suggestions in ${brief.city}: real regional specialties, crafts, markets and seasonal produce for the event date.`
+    : `Draw on what ${brief.city} is known for: regional specialties, crafts and seasonal produce for the event date.`;
   return `Suggest 6 fresh, personalized ideas for this celebration, mixing theme, decor, menu, activity and gift.
-Use Google Search to ground local suggestions in ${brief.city}: real regional specialties, crafts, markets and seasonal produce for the event date.
+${local}
 Write in ${LANGUAGES[brief.language]}. Respond with only a JSON array of objects with keys "kind" (theme|decor|menu|activity|gift), "title" and "description" (under 300 characters).
 
 ${DATA_RULE}

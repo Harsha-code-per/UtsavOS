@@ -23,17 +23,17 @@ Built for PromptWars Virtual, Challenge 5: Celebration & Event Planner.
 
 ## How Generative AI is used
 
-| Feature          | Gemini capability                                                                                                | Implementation                                         |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Full plan draft  | Structured output (`responseJsonSchema` generated from the same zod schema the app validates with)               | [`planner.ts`](src/lib/ai/planner.ts) → `draftPlan`    |
-| Brief quick-fill | Structured extraction from free text in any language, including "1.5 lakh" → 150000 and "next February" → a date | `parseBrief`, [`prompts.ts`](src/lib/ai/prompts.ts)    |
-| Co-planner       | Function calling: 7 typed tools (`moveBudget`, `addMilestone`, `setVendorStatus`…) declared from zod schemas     | [`tools.ts`](src/lib/ai/tools.ts) → `chat`             |
-| Local ideas      | Grounding with Google Search, with cited web sources                                                             | `ideas`                                                |
-| Multilingual     | Plans and replies in 10 languages; browser speech input in the plan's language                                   | `LANGUAGES` in [`schema.ts`](src/lib/domain/schema.ts) |
+| Feature          | Gemini capability                                                                                                                     | Implementation                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Full plan draft  | Structured output (`responseJsonSchema` generated from the same zod schema the app validates with)                                    | [`planner.ts`](src/lib/ai/planner.ts) → `draftPlan`    |
+| Brief quick-fill | Structured extraction from free text in any language, including "1.5 lakh" → 150000 and "next February" → a date                      | `parseBrief`, [`prompts.ts`](src/lib/ai/prompts.ts)    |
+| Co-planner       | Function calling: 7 typed tools (`moveBudget`, `addMilestone`, `setVendorStatus`…) declared from zod schemas                          | [`tools.ts`](src/lib/ai/tools.ts) → `chat`             |
+| Local ideas      | Grounding with Google Search with cited sources, falling back to schema-constrained ideas when the free-tier grounding quota runs out | `ideas`                                                |
+| Multilingual     | Plans and replies in 10 languages; browser speech input in the plan's language                                                        | `LANGUAGES` in [`schema.ts`](src/lib/domain/schema.ts) |
 
 **Principle: Gemini proposes, code guarantees.** The model returns _intent_: percentage splits, "N days before" offsets, proposed changes. Pure, tested code turns that into the plan: budgets always add up to exactly the total, dates never fall in the past or after the event, and a change that can't apply is never shown. Model output is treated as untrusted. [`sanitizeDraft`](src/lib/domain/plan.ts) keeps every valid item and drops the rest, and [`applyChange`](src/lib/domain/plan.ts) re-validates the whole plan after each edit.
 
-**Resilience.** Requests go through a model chain (Gemini 3.8 Flash → Flash-Lite → Flash) that moves to the next model on overload, quota or timeout, within a 50-second budget. If Gemini is unavailable, `/api/plan` still returns a complete starter plan from curated templates, and the dashboard offers to redraft with Gemini later. Identical requests are cached for 30 minutes to save quota.
+**Resilience.** Requests go through a model chain (Gemini 3.8 Flash → Gemini Flash-Lite, both with low thinking for speed) that moves to the next model on overload, quota or timeout, within a 50-second budget. If Gemini is unavailable, `/api/plan` still returns a complete starter plan from curated templates, and the dashboard offers to redraft with Gemini later. Identical requests are cached for 30 minutes to save quota.
 
 ## Google services
 

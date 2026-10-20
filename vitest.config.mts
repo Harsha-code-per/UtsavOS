@@ -13,6 +13,8 @@ export default defineConfig({
       provider: "v8",
       include: ["src/lib/**", "src/components/**", "src/app/api/**"],
       reporter: ["text", "html", "lcov"],
+      // CI fails if coverage drops below these floors.
+      thresholds: { lines: 85, statements: 85, functions: 85, branches: 75 },
     },
   },
 });

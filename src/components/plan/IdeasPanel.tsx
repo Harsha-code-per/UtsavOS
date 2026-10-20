@@ -58,8 +58,8 @@ export function IdeasPanel({ plan, onChange }: { plan: Plan; onChange: ChangePla
           </button>
         </div>
         <p className="field-hint">
-          Gemini searches Google for what&rsquo;s local and in season, then suggests ideas you can
-          add to the plan.
+          Gemini suggests ideas for what&rsquo;s local and in season, using Google Search when it
+          can. Add the ones you like to the plan.
         </p>
         <p role="status" className={styles.formResult}>
           {state.error}

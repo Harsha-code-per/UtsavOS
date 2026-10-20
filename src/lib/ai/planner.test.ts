@@ -47,6 +47,7 @@ describe("createGeminiPlanner", () => {
     expect(call.config?.responseJsonSchema).toMatchObject({ type: "object" });
     expect(String(call.config?.systemInstruction)).toContain("UtsavOS");
     expect(call.config?.abortSignal).toBeInstanceOf(AbortSignal);
+    expect(call.config?.thinkingConfig).toEqual({ thinkingLevel: "LOW" });
   });
 
   it("raises AiError when the model returns something that is not a valid draft", async () => {
@@ -142,6 +143,22 @@ describe("createGeminiPlanner", () => {
   });
 });
 
+describe("ideas without Search grounding", () => {
+  it("falls back to structured, ungrounded ideas when grounding is unavailable", async () => {
+    const idea = { kind: "gift", title: "Diya kits", description: "Paint-your-own clay diyas." };
+    const generate = vi
+      .fn<Generate>()
+      .mockRejectedValueOnce(Object.assign(new Error("quota"), { status: 429 }))
+      .mockResolvedValueOnce({ text: JSON.stringify([idea]) });
+    const result = await createGeminiPlanner(generate, ["m"]).ideas(brief);
+
+    expect(result).toEqual({ ideas: [idea], sources: [] });
+    const fallback = generate.mock.calls[1]![0];
+    expect(fallback.config?.tools).toBeUndefined();
+    expect(fallback.config?.responseJsonSchema).toMatchObject({ type: "array" });
+  });
+});
+
 describe("mockPlanner", () => {
   it("returns the template draft so the app works offline and in end-to-end tests", async () => {
     expect(await mockPlanner.draftPlan(brief, "2026-10-20")).toEqual(fallbackDraft(brief));
@@ -196,6 +213,9 @@ describe("model fallback", () => {
 describe("modelChain", () => {
   it("reads a comma-separated GEMINI_MODEL, or uses the defaults", () => {
     expect(modelChain({ GEMINI_MODEL: "x, y" })).toEqual(["x", "y"]);
-    expect(modelChain({}).length).toBeGreaterThanOrEqual(2);
+    const defaults = modelChain({});
+    expect(defaults.length).toBeGreaterThanOrEqual(2);
+    // "gemini-flash-latest" aliases the newest Flash, duplicating the first entry.
+    expect(defaults).not.toContain("gemini-flash-latest");
   });
 });

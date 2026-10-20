@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Mukta, Rozha_One } from "next/font/google";
 import { connection } from "next/server";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const display = Rozha_One({
@@ -15,10 +16,22 @@ const body = Mukta({
   subsets: ["latin", "devanagari"],
 });
 
+const description =
+  "Plan weddings, birthdays and community events with Gemini: budgets, timelines, vendor checklists and personalized ideas from one sentence.";
+
 export const metadata: Metadata = {
-  title: { default: "UtsavOS — AI celebration planner", template: "%s · UtsavOS" },
-  description:
-    "Plan weddings, birthdays and community events with Gemini: budgets, timelines, vendor checklists and personalized ideas from one sentence.",
+  metadataBase: new URL(siteUrl),
+  title: { default: "UtsavOS: AI celebration planner", template: "%s · UtsavOS" },
+  description,
+  applicationName: "UtsavOS",
+  openGraph: {
+    type: "website",
+    siteName: "UtsavOS",
+    title: "UtsavOS: every celebration, beautifully choreographed",
+    description,
+    locale: "en_IN",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = { themeColor: "#0F0D24" };

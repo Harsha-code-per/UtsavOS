@@ -1,4 +1,4 @@
-import { GoogleGenAI, type GenerateContentParameters } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel, type GenerateContentParameters } from "@google/genai";
 import { z } from "zod";
 import { fallbackDraft, sanitizeDraft } from "@/lib/domain/plan";
 import {
@@ -21,11 +21,8 @@ import {
 import { planTools, toChanges, toGeminiSchema } from "./tools";
 
 /** Tried in order: a model that is overloaded, rate limited or retired hands over to the next. */
-export const DEFAULT_MODELS = [
-  "gemini-3.8-flash",
-  "gemini-flash-lite-latest",
-  "gemini-flash-latest",
-];
+// ("gemini-flash-latest" is left out: it aliases the newest Flash, i.e. the first entry.)
+export const DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-flash-lite-latest"];
 
 export const ChatMessageSchema = z.object({
   role: z.enum(["user", "model"]),
@@ -89,6 +86,27 @@ function parseJson(text: string | undefined): unknown {
   }
 }
 
+function validIdeas(raw: unknown): IdeaDraft[] {
+  return z
+    .array(z.unknown())
+    .catch([])
+    .parse(raw)
+    .flatMap((item) => {
+      const idea = IdeaDraftSchema.safeParse(item);
+      return idea.success ? [idea.data] : [];
+    });
+}
+
+/** Cited web pages from a grounded answer: http(s) only, de-duplicated. */
+function groundingSources(res: GenerateResult): Source[] {
+  const seen = new Set<string>();
+  return (res.candidates?.[0]?.groundingMetadata?.groundingChunks ?? []).flatMap(({ web }) => {
+    if (!web?.uri || !/^https?:\/\//.test(web.uri) || seen.has(web.uri)) return [];
+    seen.add(web.uri);
+    return [{ uri: web.uri, title: web.title || new URL(web.uri).hostname }];
+  });
+}
+
 export function createGeminiPlanner(generate: Generate, models: string[]): Planner {
   async function call(params: Omit<GenerateContentParameters, "model">): Promise<GenerateResult> {
     const started = Date.now();
@@ -100,6 +118,8 @@ export function createGeminiPlanner(generate: Generate, models: string[]): Plann
           model,
           ...params,
           config: {
+            // Planning needs little deliberation; low thinking cuts latency several-fold.
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
             ...params.config,
             abortSignal: AbortSignal.timeout(Math.min(ATTEMPT_TIMEOUT_MS, remaining)),
           },
@@ -169,32 +189,32 @@ export function createGeminiPlanner(generate: Generate, models: string[]): Plann
     },
 
     async ideas(brief) {
-      // Search grounding can't be combined with a response schema, so parse the JSON from text.
-      const res = await call({
-        contents: ideasPrompt(brief),
-        config: { tools: [{ googleSearch: {} }], temperature: 0.9 },
-      });
-      const text = res.text ?? "";
-      const raw = parseJson(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1));
-      const ideas = z
-        .array(z.unknown())
-        .catch([])
-        .parse(raw)
-        .flatMap((item) => {
-          const idea = IdeaDraftSchema.safeParse(item);
-          return idea.success ? [idea.data] : [];
+      try {
+        // Search grounding can't be combined with a response schema, so parse JSON from text.
+        const res = await call({
+          contents: ideasPrompt(brief, true),
+          config: { tools: [{ googleSearch: {} }], temperature: 0.9 },
         });
-      if (!ideas.length) throw new AiError("No ideas came back. Please try again.");
-
-      const seen = new Set<string>();
-      const sources = (res.candidates?.[0]?.groundingMetadata?.groundingChunks ?? []).flatMap(
-        ({ web }) => {
-          if (!web?.uri || !/^https?:\/\//.test(web.uri) || seen.has(web.uri)) return [];
-          seen.add(web.uri);
-          return [{ uri: web.uri, title: web.title || new URL(web.uri).hostname }];
+        const text = res.text ?? "";
+        const ideas = validIdeas(
+          parseJson(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1)),
+        );
+        if (ideas.length) return { ideas, sources: groundingSources(res) };
+      } catch (error) {
+        if (!(error instanceof AiError)) throw error;
+        // Grounding has its own (small) free-tier quota; fall back to plain structured ideas.
+      }
+      const res = await call({
+        contents: ideasPrompt(brief, false),
+        config: {
+          responseMimeType: "application/json",
+          responseJsonSchema: toGeminiSchema(z.array(IdeaDraftSchema)),
+          temperature: 0.9,
         },
-      );
-      return { ideas, sources };
+      });
+      const ideas = validIdeas(parseJson(res.text));
+      if (!ideas.length) throw new AiError("No ideas came back. Please try again.");
+      return { ideas, sources: [] };
     },
   };
 }
