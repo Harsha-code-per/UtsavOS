@@ -36,7 +36,10 @@ export function usePlanActions() {
   const save = useCallback(
     (plan: Plan) => {
       saveLocalPlan(plan);
-      if (!user) return setSaveStatus("device");
+      if (!user) {
+        setSaveStatus("device");
+        return;
+      }
       setSaveStatus("saving");
       saveRemotePlan(user.uid, plan)
         .then(() => setSaveStatus("saved"))
@@ -56,7 +59,8 @@ export function usePlanActions() {
   const remove = useCallback(
     async (id: string) => {
       removeLocalPlan(id);
-      if (user) await deleteRemotePlan(user.uid, id).catch(() => {});
+      // Best effort: the plan is already gone from this device; sign-in sync won't restore it.
+      if (user) await deleteRemotePlan(user.uid, id).catch(() => undefined);
     },
     [user],
   );

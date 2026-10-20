@@ -1,0 +1,16 @@
+/* Inline result line under a form. */
+
+.formResult {
+  grid-column: 1 / -1;
+  min-height: 1.4em;
+  color: var(--kumkum);
+  font-size: 0.9375rem;
+}
+
+.formResult:empty {
+  display: none;
+}
+
+.formResult[data-ok] {
+  color: var(--ok-fg);
+}

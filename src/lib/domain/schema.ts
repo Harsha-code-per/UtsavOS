@@ -134,3 +134,7 @@ export const PlanChangeSchema = z.discriminatedUnion("op", [
   }),
 ]);
 export type PlanChange = z.infer<typeof PlanChangeSchema>;
+
+/** Each plan change keyed by its `op`, for exhaustive per-operation tables. */
+export type PlanChangeMap = { [C in PlanChange as C["op"]]: C };
+export type PlanChangeOp = keyof PlanChangeMap;

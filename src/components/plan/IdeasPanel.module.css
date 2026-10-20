@@ -1,0 +1,83 @@
+/* Personalized ideas. */
+
+.ideas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.idea {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--ivory);
+}
+
+.idea h3 {
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: 1.375rem;
+  line-height: 1.15;
+}
+
+.idea > p:not(.ideaKind) {
+  color: var(--body-on-ivory);
+}
+
+.idea button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.ideaKind {
+  color: var(--kumkum-deep);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.idea[data-kind="theme"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--diya);
+}
+
+.idea[data-kind="theme"] .ideaKind {
+  color: var(--marigold);
+}
+
+.idea[data-kind="theme"] > p:not(.ideaKind) {
+  color: var(--body-on-night);
+}
+
+.fresh {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.sources h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sources ul {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 1.25rem;
+}
+
+.error {
+  color: var(--kumkum);
+  font-size: 0.9375rem;
+}
+
+.error:empty {
+  display: none;
+}

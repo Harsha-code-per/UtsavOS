@@ -8,6 +8,8 @@ import {
   type Brief,
   type Plan,
   type PlanChange,
+  type PlanChangeMap,
+  type PlanChangeOp,
   type PlanDraft,
 } from "./schema";
 import { slugify } from "./slug";
@@ -91,84 +93,86 @@ export function buildPlan(brief: Brief, draft: PlanDraft, ctx: BuildContext): Pl
   });
 }
 
-function edit(plan: Plan, change: PlanChange): Omit<Plan, "updatedAt"> {
-  switch (change.op) {
-    case "moveBudget":
-      return { ...plan, budget: moveBudget(plan.budget, change) };
+type PlanFields = Omit<Plan, "updatedAt">;
+type Editors = { [K in PlanChangeOp]: (plan: Plan, change: PlanChangeMap[K]) => PlanFields };
 
-    case "logSpend": {
-      if (!plan.budget.some((l) => l.id === change.id)) {
-        throw new Error(`Unknown budget category: ${change.id}`);
-      }
-      const budget = plan.budget.map((l) =>
-        l.id === change.id ? { ...l, spent: l.spent + change.amount } : l,
-      );
-      return { ...plan, budget };
-    }
+/** Replaces the item with `target.id`, or throws `target.missing` if there is none. */
+function updateById<T extends { id: string }>(
+  items: T[],
+  target: { id: string; missing: string },
+  update: (item: T) => T,
+): T[] {
+  if (!items.some((item) => item.id === target.id)) throw new Error(target.missing);
+  return items.map((item) => (item.id === target.id ? update(item) : item));
+}
 
-    case "addMilestone": {
-      if (change.due > plan.brief.date) throw new Error("That date is after the event");
-      const base = slugify(change.title) || "task";
-      let id = base;
-      for (let n = 2; plan.milestones.some((m) => m.id === id); n++) id = `${base}-${n}`;
-      const milestones = [
-        ...plan.milestones,
-        { id, title: change.title, due: change.due, done: false },
-      ];
-      return { ...plan, milestones: milestones.sort((a, b) => a.due.localeCompare(b.due)) };
-    }
+/** `base`, or `base-2`, `base-3`… whichever is not taken yet. */
+function freeId(base: string, taken: { id: string }[]): string {
+  let id = base;
+  for (let n = 2; taken.some((item) => item.id === id); n++) id = `${base}-${n}`;
+  return id;
+}
 
-    case "toggleMilestone": {
-      if (!plan.milestones.some((m) => m.id === change.id)) {
-        throw new Error(`Milestone not found: ${change.id}`);
-      }
-      const milestones = plan.milestones.map((m) =>
-        m.id === change.id ? { ...m, done: !m.done } : m,
-      );
-      return { ...plan, milestones };
-    }
+const byDue = (a: { due: string }, b: { due: string }) => a.due.localeCompare(b.due);
 
-    case "addVendor": {
-      const id = slugify(change.category);
-      if (plan.vendors.some((v) => v.id === id)) {
-        throw new Error(`${change.category} is already on the checklist`);
-      }
-      const vendor = {
-        id,
-        category: change.category,
-        name: "",
-        status: "todo" as const,
-        quote: null,
-        questions: change.questions,
-      };
-      return { ...plan, vendors: [...plan.vendors, vendor] };
-    }
+const EDITORS: Editors = {
+  moveBudget: (plan, change) => ({ ...plan, budget: moveBudget(plan.budget, change) }),
 
-    case "setVendorStatus": {
-      if (!plan.vendors.some((v) => v.id === change.id)) {
-        throw new Error(`Vendor not found: ${change.id}`);
-      }
-      const vendors = plan.vendors.map((v) =>
-        v.id === change.id
-          ? {
-              ...v,
-              status: change.status,
-              quote: change.quote === undefined ? v.quote : change.quote,
-            }
-          : v,
-      );
-      return { ...plan, vendors };
-    }
+  logSpend: (plan, { id, amount }) => ({
+    ...plan,
+    budget: updateById(plan.budget, { id, missing: `Unknown budget category: ${id}` }, (line) => ({
+      ...line,
+      spent: line.spent + amount,
+    })),
+  }),
 
-    case "addIdea": {
-      const idea = { kind: change.kind, title: change.title, description: change.description };
-      const [withId] = uniqueIds([idea], (i) => `${i.kind} ${i.title} ${plan.ideas.length + 1}`);
-      return { ...plan, ideas: [...plan.ideas, withId!] };
+  addMilestone: (plan, { title, due }) => {
+    if (due > plan.brief.date) throw new Error("That date is after the event");
+    const id = freeId(slugify(title) || "task", plan.milestones);
+    return {
+      ...plan,
+      milestones: [...plan.milestones, { id, title, due, done: false }].sort(byDue),
+    };
+  },
+
+  toggleMilestone: (plan, { id }) => ({
+    ...plan,
+    milestones: updateById(plan.milestones, { id, missing: `Milestone not found: ${id}` }, (m) => ({
+      ...m,
+      done: !m.done,
+    })),
+  }),
+
+  addVendor: (plan, { category, questions }) => {
+    const id = slugify(category);
+    if (plan.vendors.some((v) => v.id === id)) {
+      throw new Error(`${category} is already on the checklist`);
     }
-  }
+    const vendor = { id, category, name: "", status: "todo" as const, quote: null, questions };
+    return { ...plan, vendors: [...plan.vendors, vendor] };
+  },
+
+  setVendorStatus: (plan, { id, status, quote }) => ({
+    ...plan,
+    vendors: updateById(plan.vendors, { id, missing: `Vendor not found: ${id}` }, (v) => ({
+      ...v,
+      status,
+      quote: quote === undefined ? v.quote : quote,
+    })),
+  }),
+
+  addIdea: (plan, { kind, title, description }) => {
+    const id = freeId(slugify(`${kind} ${title}`) || "idea", plan.ideas);
+    return { ...plan, ideas: [...plan.ideas, { id, kind, title, description }] };
+  },
+};
+
+// The op is passed separately so TypeScript can correlate it with the change's type.
+function edit<K extends PlanChangeOp>(op: K, plan: Plan, change: PlanChangeMap[K]): PlanFields {
+  return EDITORS[op](plan, change);
 }
 
 /** Applies one change and re-validates the whole plan, so no edit can leave it inconsistent. */
 export function applyChange(plan: Plan, change: PlanChange, now: Date = new Date()): Plan {
-  return PlanSchema.parse({ ...edit(plan, change), updatedAt: now.toISOString() });
+  return PlanSchema.parse({ ...edit(change.op, plan, change), updatedAt: now.toISOString() });
 }

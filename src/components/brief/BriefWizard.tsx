@@ -13,7 +13,7 @@ import {
   type Brief,
   type Plan,
 } from "@/lib/domain/schema";
-import { TRADITIONS } from "@/lib/domain/templates";
+import { TRADITIONS } from "@/lib/domain/traditions";
 import { takeDescription } from "@/lib/store/handoff";
 import { usePlanActions } from "@/lib/store/usePlans";
 import { GeneratingDialog } from "./GeneratingDialog";

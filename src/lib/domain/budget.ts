@@ -30,27 +30,21 @@ export function allocateBudget(total: number, splits: BudgetSplit[]): BudgetLine
   }
   if (merged.size === 0) throw new Error("Budget needs at least one category");
 
-  const entries = [...merged.entries()];
-  const percentSum = entries.reduce((acc, [, s]) => acc + s.percent, 0);
-  const raw = entries.map(([, s]) => (total * s.percent) / percentSum);
-  const allocated = raw.map(Math.floor);
+  const percentSum = [...merged.values()].reduce((acc, s) => acc + s.percent, 0);
+  const rows = [...merged.entries()].map(([id, s]) => {
+    const exact = (total * s.percent) / percentSum;
+    return { id, category: s.category, allocated: Math.floor(exact), fraction: exact % 1 };
+  });
 
-  let leftover = total - allocated.reduce((a, b) => a + b, 0);
-  const byFraction = raw
-    .map((value, index) => ({ index, fraction: value - Math.floor(value) }))
-    .sort((a, b) => b.fraction - a.fraction);
-  for (const { index } of byFraction) {
+  // Hand the whole units lost to rounding to the rows with the largest remainders.
+  let leftover = total - rows.reduce((acc, row) => acc + row.allocated, 0);
+  for (const row of [...rows].sort((a, b) => b.fraction - a.fraction)) {
     if (leftover <= 0) break;
-    allocated[index]! += 1;
+    row.allocated += 1;
     leftover -= 1;
   }
 
-  return entries.map(([id, s], i) => ({
-    id,
-    category: s.category,
-    allocated: allocated[i]!,
-    spent: 0,
-  }));
+  return rows.map(({ id, category, allocated }) => ({ id, category, allocated, spent: 0 }));
 }
 
 export function summarizeBudget(lines: BudgetLine[]): BudgetSummary {

@@ -17,9 +17,9 @@ const DESCRIPTIONS: Record<PlanChange["op"], string> = {
 const UNSUPPORTED = new Set(["$schema", "pattern", "minItems", "maxItems", "additionalProperties"]);
 
 export function toGeminiSchema(schema: z.ZodType): Record<string, unknown> {
-  return JSON.parse(JSON.stringify(z.toJSONSchema(schema)), (key, value) =>
+  return JSON.parse(JSON.stringify(z.toJSONSchema(schema)), (key: string, value: unknown) =>
     UNSUPPORTED.has(key) ? undefined : value,
-  );
+  ) as Record<string, unknown>;
 }
 
 export const planTools: FunctionDeclaration[] = PlanChangeSchema.options.map((option) => {

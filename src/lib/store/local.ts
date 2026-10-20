@@ -39,9 +39,7 @@ export function saveLocalPlan(plan: Plan): void {
 }
 
 export function removeLocalPlan(id: string): void {
-  const { [id]: _removed, ...rest } = readAll();
-  void _removed;
-  writeAll(rest);
+  writeAll(Object.fromEntries(Object.entries(readAll()).filter(([key]) => key !== id)));
 }
 
 /** Combines two copies of a plan list; the most recently updated version of each plan wins. */

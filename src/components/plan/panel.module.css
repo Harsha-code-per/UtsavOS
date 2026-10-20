@@ -1,0 +1,41 @@
+/* Shared panel scaffolding: stacks, panel headings and inline forms. */
+
+.stack {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panelTitle {
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+
+.inlineForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem 1rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-m);
+  background: var(--ivory);
+}
+
+.formTitle {
+  grid-column: 1 / -1;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .inlineForm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,123 @@
+/* Plan dashboard: layout, header, notices. */
+
+.page {
+  padding-block: clamp(2rem, 4vw, 3rem) 5rem;
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  max-width: 40rem;
+  padding-block: 5rem;
+}
+
+.emptyTitle {
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.meta {
+  color: var(--kumkum-deep);
+  font-weight: 600;
+}
+
+.title {
+  margin-top: 0.25rem;
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.save {
+  margin-top: 0.6rem;
+  color: var(--muted-on-ivory);
+  font-size: 0.9375rem;
+}
+
+.save[data-state="error"] {
+  color: var(--kumkum);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 0.25rem 2.5rem;
+}
+
+.stats dt {
+  color: var(--muted-on-ivory);
+  font-size: 0.9375rem;
+}
+
+.stats dd {
+  font-family: var(--font-display-stack);
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-m);
+  background: var(--warn-bg);
+  color: var(--warn-fg);
+}
+
+.notice p {
+  max-width: 48rem;
+}
+
+.workspace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.main {
+  flex: 999 1 38rem;
+  min-width: 0;
+}
+
+.panel {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--paper);
+}
+
+.panel:focus-visible {
+  outline: 3px solid var(--ink);
+}
+
+@media (max-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(2, auto);
+  }
+}

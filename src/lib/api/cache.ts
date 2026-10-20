@@ -24,7 +24,8 @@ export function createTtlCache<V>({ ttlMs, max, now = Date.now }: Options) {
     set(key: string, value: V): void {
       entries.delete(key);
       entries.set(key, { value, expires: now() + ttlMs });
-      if (entries.size > max) entries.delete(entries.keys().next().value as string);
+      const oldest = entries.keys().next();
+      if (entries.size > max && !oldest.done) entries.delete(oldest.value);
     },
   };
 }

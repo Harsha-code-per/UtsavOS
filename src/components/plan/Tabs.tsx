@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import styles from "./dashboard.module.css";
+import styles from "./Tabs.module.css";
 
 export const TABS = [
   { id: "budget", label: "Budget" },
@@ -11,26 +11,29 @@ export const TABS = [
 ] as const;
 export type TabId = (typeof TABS)[number]["id"];
 
+const KEY_MOVES: Record<string, (index: number) => number> = {
+  ArrowRight: (i) => (i + 1) % TABS.length,
+  ArrowLeft: (i) => (i - 1 + TABS.length) % TABS.length,
+  Home: () => 0,
+  End: () => TABS.length - 1,
+};
+
+interface Props {
+  active: TabId;
+  onChange: (tab: TabId) => void;
+}
+
 /** WAI-ARIA tabs: arrow keys, Home and End move between tabs (roving tabindex). */
-export function Tabs({ active, onChange }: { active: TabId; onChange(tab: TabId): void }) {
+export function Tabs({ active, onChange }: Props) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
   function onKeyDown(event: React.KeyboardEvent, index: number) {
-    const last = TABS.length - 1;
-    const next =
-      event.key === "ArrowRight"
-        ? (index + 1) % TABS.length
-        : event.key === "ArrowLeft"
-          ? (index - 1 + TABS.length) % TABS.length
-          : event.key === "Home"
-            ? 0
-            : event.key === "End"
-              ? last
-              : -1;
-    if (next < 0) return;
+    const move = KEY_MOVES[event.key];
+    const next = move ? TABS[move(index)] : undefined;
+    if (!move || !next) return;
     event.preventDefault();
-    onChange(TABS[next]!.id);
-    refs.current[next]?.focus();
+    onChange(next.id);
+    refs.current[TABS.indexOf(next)]?.focus();
   }
 
   return (

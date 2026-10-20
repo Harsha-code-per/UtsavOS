@@ -1,0 +1,71 @@
+/* Vendor checklist. */
+
+.vendors {
+  display: grid;
+  padding: 0;
+  list-style: none;
+}
+
+.vendor {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--track);
+}
+
+.vendor:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.vendorHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.vendorHead h3 {
+  font-size: 1.1875rem;
+  font-weight: 600;
+}
+
+.vendorControls {
+  display: grid;
+  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+  align-items: end;
+  gap: 1rem;
+}
+
+.quoteForm {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.quoteForm .field {
+  flex: 1;
+}
+
+.questions summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--kumkum-deep);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.questions ul {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem 0.75rem 2rem;
+  border-radius: var(--radius-s);
+  background: var(--ivory);
+}
+
+@media (max-width: 640px) {
+  .vendorControls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

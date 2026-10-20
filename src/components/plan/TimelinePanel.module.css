@@ -1,0 +1,113 @@
+/* Timeline panel and run sheet. */
+
+.milestones {
+  display: grid;
+  padding: 0;
+  list-style: none;
+}
+
+.milestones li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--track);
+}
+
+.milestones input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--ink);
+}
+
+.milestones label {
+  padding-block: 0.4rem;
+  cursor: pointer;
+}
+
+.milestones li[data-state="done"] label {
+  color: var(--muted-on-ivory);
+  text-decoration: line-through;
+}
+
+.due {
+  color: var(--muted-on-ivory);
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+
+.milestones li[data-state="overdue"] .due,
+.milestones li[data-state="soon"] .due {
+  color: var(--kumkum);
+  font-weight: 700;
+}
+
+.calLink {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-s);
+  color: var(--ink);
+}
+
+.calLink:hover {
+  background: var(--ivory);
+}
+
+.calLink svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.runSheet {
+  padding: 1.5rem;
+  border-radius: var(--radius-m);
+  background: var(--ink);
+  color: var(--diya);
+}
+
+.runSheet h3 {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.runSheet ol {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.runSheet li {
+  display: flex;
+  gap: 1rem;
+}
+
+.runSheet time {
+  flex: 0 0 3.5rem;
+  color: var(--marigold);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .milestones li {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .due {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .calLink {
+    grid-row: 1 / span 2;
+    grid-column: 3;
+  }
+}

@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { formatMoney } from "@/lib/domain/format";
 import { VENDOR_STATUSES, type Plan, type Vendor } from "@/lib/domain/schema";
+import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import type { ChangePlan } from "./PlanDashboard";
-import styles from "./dashboard.module.css";
+import panel from "./panel.module.css";
+import styles from "./VendorsPanel.module.css";
 
 const STATUS_LABEL: Record<Vendor["status"], string> = {
   todo: "To do",
@@ -12,19 +14,21 @@ const STATUS_LABEL: Record<Vendor["status"], string> = {
   booked: "Booked",
 };
 
-function VendorRow({
-  vendor,
-  plan,
-  onChange,
-}: {
+interface RowProps {
   vendor: Vendor;
   plan: Plan;
   onChange: ChangePlan;
-}) {
-  const [quote, setQuote] = useState(vendor.quote?.toString() ?? "");
-  const [message, setMessage] = useState<string | null>(null);
+}
 
-  function saveQuote(event: React.FormEvent) {
+function QuoteForm({
+  vendor,
+  plan,
+  onChange,
+  onStatus,
+}: RowProps & { onStatus: (s: Status) => void }) {
+  const [quote, setQuote] = useState(vendor.quote?.toString() ?? "");
+
+  function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = quote.trim() ? Number(quote.replace(/[^\d]/g, "")) : null;
     const error = onChange({
@@ -33,11 +37,39 @@ function VendorRow({
       status: vendor.status,
       quote: value,
     });
-    setMessage(
-      error ??
-        (value ? `Quote saved: ${formatMoney(value, plan.brief.currency)}.` : "Quote cleared."),
+    onStatus(
+      outcome(
+        error,
+        value ? `Quote saved: ${formatMoney(value, plan.brief.currency)}.` : "Quote cleared.",
+      ),
     );
   }
+
+  return (
+    <form className={styles.quoteForm} onSubmit={submit}>
+      <div className="field">
+        <label htmlFor={`quote-${vendor.id}`}>Quote ({plan.brief.currency})</label>
+        <input
+          id={`quote-${vendor.id}`}
+          className="input"
+          inputMode="numeric"
+          value={quote}
+          onChange={(e) => setQuote(e.target.value)}
+        />
+      </div>
+      <button type="submit" className="btn btn-outline btn-small">
+        Save quote
+      </button>
+    </form>
+  );
+}
+
+function VendorRow({ vendor, plan, onChange }: RowProps) {
+  const [status, setStatus] = useState<Status | null>(null);
+  const changeStatus = (next: Vendor["status"]) => {
+    const error = onChange({ op: "setVendorStatus", id: vendor.id, status: next });
+    setStatus(error ? failure(error) : null);
+  };
 
   return (
     <li className={styles.vendor}>
@@ -52,15 +84,7 @@ function VendorRow({
             id={`status-${vendor.id}`}
             className="input"
             value={vendor.status}
-            onChange={(e) =>
-              setMessage(
-                onChange({
-                  op: "setVendorStatus",
-                  id: vendor.id,
-                  status: e.target.value as Vendor["status"],
-                }),
-              )
-            }
+            onChange={(e) => changeStatus(e.target.value as Vendor["status"])}
           >
             {VENDOR_STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -69,25 +93,9 @@ function VendorRow({
             ))}
           </select>
         </div>
-        <form className={styles.quoteForm} onSubmit={saveQuote}>
-          <div className="field">
-            <label htmlFor={`quote-${vendor.id}`}>Quote ({plan.brief.currency})</label>
-            <input
-              id={`quote-${vendor.id}`}
-              className="input"
-              inputMode="numeric"
-              value={quote}
-              onChange={(e) => setQuote(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn btn-outline btn-small">
-            Save quote
-          </button>
-        </form>
+        <QuoteForm vendor={vendor} plan={plan} onChange={onChange} onStatus={setStatus} />
       </div>
-      <p className={styles.formResult} role="status">
-        {message}
-      </p>
+      <FormStatus status={status} />
       {vendor.questions.length > 0 && (
         <details className={styles.questions}>
           <summary>Questions to ask before you pay an advance</summary>
@@ -102,46 +110,53 @@ function VendorRow({
   );
 }
 
-export function VendorsPanel({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
+function AddVendorForm({ onChange }: { onChange: ChangePlan }) {
   const [category, setCategory] = useState("");
-  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
+  const [status, setStatus] = useState<Status | null>(null);
 
-  function addVendor(event: React.FormEvent) {
+  function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const name = category.trim();
-    if (!name)
-      return setResult({ ok: false, text: "Name the kind of vendor, like Mehendi artist." });
+    if (!name) {
+      setStatus(failure("Name the kind of vendor, like Mehendi artist."));
+      return;
+    }
     const error = onChange({ op: "addVendor", category: name, questions: [] });
-    setResult(error ? { ok: false, text: error } : { ok: true, text: `Added ${name}.` });
+    setStatus(outcome(error, `Added ${name}.`));
     if (!error) setCategory("");
   }
 
   return (
-    <div className={styles.stack}>
+    <form className={panel.inlineForm} onSubmit={submit}>
+      <h3 className={panel.formTitle}>Add a vendor</h3>
+      <div className="field">
+        <label htmlFor="vendor-category">Kind of vendor</label>
+        <input
+          id="vendor-category"
+          className="input"
+          maxLength={60}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+      </div>
+      <button type="submit" className="btn btn-ink">
+        Add vendor
+      </button>
+      <FormStatus status={status} />
+    </form>
+  );
+}
+
+/** Every vendor with its booking status, quote and the questions to ask. */
+export function VendorsPanel({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
+  return (
+    <div className={panel.stack}>
       <ul className={styles.vendors}>
         {plan.vendors.map((v) => (
           <VendorRow key={v.id} vendor={v} plan={plan} onChange={onChange} />
         ))}
       </ul>
-      <form className={styles.inlineForm} onSubmit={addVendor}>
-        <h3 className={styles.formTitle}>Add a vendor</h3>
-        <div className="field">
-          <label htmlFor="vendor-category">Kind of vendor</label>
-          <input
-            id="vendor-category"
-            className="input"
-            maxLength={60}
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="btn btn-ink">
-          Add vendor
-        </button>
-        <p className={styles.formResult} role="status" data-ok={result?.ok ? "" : undefined}>
-          {result?.text}
-        </p>
-      </form>
+      <AddVendorForm onChange={onChange} />
     </div>
   );
 }

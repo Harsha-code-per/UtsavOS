@@ -54,14 +54,14 @@ export function planToIcs(source: CalendarSource, now: Date): string {
     .replace(/\.\d{3}/, "");
   const day = compactDate(brief.date);
 
-  const allDay = (uid: string, date: string, summary: string, extra: [string, string][] = []) =>
+  const allDay = (event: { uid: string; date: string; summary: string; location?: string }) =>
     vevent([
-      ["UID", `${uid}@utsavos`],
+      ["UID", `${event.uid}@utsavos`],
       ["DTSTAMP", stamp],
-      ["DTSTART;VALUE=DATE", compactDate(date)],
-      ["DTEND;VALUE=DATE", compactDate(addDays(date, 1))],
-      ["SUMMARY", escapeText(summary)],
-      ...extra,
+      ["DTSTART;VALUE=DATE", compactDate(event.date)],
+      ["DTEND;VALUE=DATE", compactDate(addDays(event.date, 1))],
+      ["SUMMARY", escapeText(event.summary)],
+      ...(event.location ? [["LOCATION", escapeText(event.location)] as [string, string]] : []),
     ]);
 
   const lines = [
@@ -70,8 +70,8 @@ export function planToIcs(source: CalendarSource, now: Date): string {
     "PRODID:-//UtsavOS//Celebration Planner//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    ...milestones.flatMap((m) => allDay(m.id, m.due, m.title)),
-    ...allDay("event", brief.date, brief.name, [["LOCATION", escapeText(brief.city)]]),
+    ...milestones.flatMap((m) => allDay({ uid: m.id, date: m.due, summary: m.title })),
+    ...allDay({ uid: "event", date: brief.date, summary: brief.name, location: brief.city }),
     ...runSheet.flatMap((item, i) => {
       const next = runSheet[i + 1];
       const end =

@@ -18,6 +18,31 @@ export function rateLimited(retryAfterSeconds: number): Response {
 
 type ReadResult<T> = { ok: true; data: T } | { ok: false; response: Response };
 
+const reject = (status: number, message: string) =>
+  ({ ok: false, response: errorResponse(status, message) }) as const;
+
+/** The body as text, or null when it is over `maxBytes` (checked before and after reading). */
+async function boundedText(request: Request, maxBytes: number): Promise<string | null> {
+  if (Number(request.headers.get("content-length") ?? 0) > maxBytes) return null;
+  const body = await request.text();
+  return new TextEncoder().encode(body).length > maxBytes ? null : body;
+}
+
+function parseJson(body: string): { ok: true; value: unknown } | { ok: false } {
+  try {
+    return { ok: true, value: JSON.parse(body) as unknown };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** First validation issue as "field: message", without exposing internals. */
+function describeIssue(error: z.ZodError): string {
+  const issue = error.issues[0];
+  const field = issue?.path.join(".") || "body";
+  return `${field}: ${issue?.message ?? "invalid"}`;
+}
+
 /** Parses and validates a JSON request body. Errors name the field, never internals. */
 export async function readJson<S extends z.ZodType>(
   request: Request,
@@ -25,30 +50,16 @@ export async function readJson<S extends z.ZodType>(
   maxBytes = 64_000,
 ): Promise<ReadResult<z.infer<S>>> {
   if (!request.headers.get("content-type")?.includes("application/json")) {
-    return {
-      ok: false,
-      response: errorResponse(415, "Send JSON with Content-Type: application/json"),
-    };
+    return reject(415, "Send JSON with Content-Type: application/json");
   }
+  const body = await boundedText(request, maxBytes);
+  if (body === null) return reject(413, "Request is too large");
 
-  const declared = Number(request.headers.get("content-length") ?? 0);
-  const body = declared > maxBytes ? "" : await request.text();
-  if (declared > maxBytes || new TextEncoder().encode(body).length > maxBytes) {
-    return { ok: false, response: errorResponse(413, "Request is too large") };
-  }
+  const json = parseJson(body);
+  if (!json.ok) return reject(400, "Request body must be valid JSON");
 
-  let raw: unknown;
-  try {
-    raw = JSON.parse(body);
-  } catch {
-    return { ok: false, response: errorResponse(400, "Request body must be valid JSON") };
-  }
-
-  const parsed = schema.safeParse(raw);
-  if (!parsed.success) {
-    const issue = parsed.error.issues[0];
-    const field = issue?.path.join(".") || "body";
-    return { ok: false, response: errorResponse(400, `${field}: ${issue?.message ?? "invalid"}`) };
-  }
-  return { ok: true, data: parsed.data };
+  const parsed = schema.safeParse(json.value);
+  return parsed.success
+    ? { ok: true, data: parsed.data }
+    : reject(400, describeIssue(parsed.error));
 }
