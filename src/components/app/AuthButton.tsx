@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuth } from "./AuthProvider";
 import styles from "./AuthButton.module.css";
+import { useAuth } from "./AuthProvider";
 
 /** Google sign-in, which syncs plans across devices. Hidden when Firebase isn't configured. */
 export function AuthButton() {

@@ -2,10 +2,10 @@ import { summarizeBudget } from "@/lib/domain/budget";
 import { EVENT_TYPE_LABEL, formatDate } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
 import { daysUntil, localToday } from "@/lib/domain/timeline";
-import type { SaveState } from "@/components/app/usePlans";
+import type { SaveStatus } from "@/lib/store/save-status";
 import styles from "./PlanDashboard.module.css";
 
-const SAVE_LABEL: Record<SaveState, string> = {
+const SAVE_LABEL: Record<SaveStatus, string> = {
   device: "Saved on this device",
   saving: "Saving…",
   saved: "Saved to your account",
@@ -13,7 +13,7 @@ const SAVE_LABEL: Record<SaveState, string> = {
 };
 
 /** Event summary, save status and the four headline stats. */
-export function PlanHeader({ plan, saveState }: { plan: Plan; saveState: SaveState }) {
+export function PlanHeader({ plan, saveState }: { plan: Plan; saveState: SaveStatus }) {
   const { brief } = plan;
   const budget = summarizeBudget(plan.budget);
   const days = daysUntil(brief.date, localToday());

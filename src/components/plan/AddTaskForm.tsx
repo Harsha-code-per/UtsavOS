@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { Plan } from "@/lib/domain/schema";
-import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import type { ChangePlan } from "./change-plan";
+import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import panel from "./panel.module.css";
 
 /** Adds a task to the timeline, due on or before the event. */

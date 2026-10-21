@@ -3,15 +3,11 @@ import type { Plan, PlanChange } from "@/lib/domain/schema";
 import styles from "./CoPlanner.module.css";
 import type { Outcome, Turn } from "./useCoPlannerChat";
 
-const OUTCOME_TEXT = {
-  applied: () => "Applied. Your plan is updated.",
-  dismissed: () => "Dismissed.",
-  failed: (reason: string) => `Couldn't apply: ${reason}`,
-};
+const SETTLED_TEXT = { applied: "Applied. Your plan is updated.", dismissed: "Dismissed." };
 
 function OutcomeLine({ outcome }: { outcome: Outcome }) {
   const text =
-    outcome.kind === "failed" ? OUTCOME_TEXT.failed(outcome.reason) : OUTCOME_TEXT[outcome.kind]();
+    outcome.kind === "failed" ? `Couldn't apply: ${outcome.reason}` : SETTLED_TEXT[outcome.kind];
   return (
     <p className={styles.outcome} data-ok={outcome.kind === "applied" ? "" : undefined}>
       {text}

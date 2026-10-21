@@ -3,9 +3,9 @@
 import { summarizeBudget } from "@/lib/domain/budget";
 import { formatMoney } from "@/lib/domain/format";
 import type { BudgetLine, Plan } from "@/lib/domain/schema";
-import { LogPaymentForm } from "./LogPaymentForm";
-import type { ChangePlan } from "./change-plan";
 import styles from "./BudgetPanel.module.css";
+import type { ChangePlan } from "./change-plan";
+import { LogPaymentForm } from "./LogPaymentForm";
 import panel from "./panel.module.css";
 
 interface Props {

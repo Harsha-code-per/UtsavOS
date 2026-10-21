@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
+import { usePlanActions } from "@/components/app/usePlans";
 import { api, errorMessage, isAbort } from "@/lib/api/client";
 import type { Brief, Plan } from "@/lib/domain/schema";
-import { usePlanActions } from "@/components/app/usePlans";
 
 interface Generating {
   done: boolean;

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Plan } from "@/lib/domain/schema";
-import { ChatTurn } from "./ChatTurn";
 import type { ChangePlan } from "./change-plan";
+import { ChatTurn } from "./ChatTurn";
 import styles from "./CoPlanner.module.css";
 import { useCoPlannerChat } from "./useCoPlannerChat";
 import { useSpeechInput } from "./useSpeechInput";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, errorMessage } from "@/lib/api/client";
 import type { ChatMessage } from "@/lib/ai/types";
+import { api, errorMessage } from "@/lib/api/client";
 import type { Plan, PlanChange } from "@/lib/domain/schema";
 
 export type Outcome =

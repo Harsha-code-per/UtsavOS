@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/components/app/AuthProvider";
+import { usePlanActions, usePlanList } from "@/components/app/usePlans";
 import { formatDate } from "@/lib/domain/format";
 import { daysUntil, localToday } from "@/lib/domain/timeline";
-import { usePlanActions, usePlanList } from "@/components/app/usePlans";
-import { useAuth } from "@/components/app/AuthProvider";
 import styles from "./PlanList.module.css";
 
 /** Delete with an in-page confirmation; focus moves to the choice and back if it's cancelled. */

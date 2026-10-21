@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { formatMoney, parseAmount } from "@/lib/domain/format";
 import { VENDOR_STATUSES, VendorSchema, type Plan, type Vendor } from "@/lib/domain/schema";
-import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import type { ChangePlan } from "./change-plan";
+import { FormStatus, failure, outcome, type Status } from "./FormStatus";
 import panel from "./panel.module.css";
 import styles from "./VendorsPanel.module.css";
 

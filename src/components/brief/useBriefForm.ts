@@ -1,9 +1,9 @@
 "use client";
 
-import { localToday } from "@/lib/domain/timeline";
 import { useCallback, useState } from "react";
 import type { BriefPatch } from "@/lib/ai/types";
 import type { Brief } from "@/lib/domain/schema";
+import { localToday } from "@/lib/domain/timeline";
 import {
   applyPatch,
   emptyForm,

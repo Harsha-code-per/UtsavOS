@@ -2,7 +2,9 @@ import { z } from "zod";
 
 export const EVENT_TYPES = ["wedding", "birthday", "community", "festival"] as const;
 export const CURRENCIES = ["INR", "USD", "GBP", "EUR", "AED"] as const;
-export const LANGUAGES = {
+export const LANGUAGE_CODES = ["en", "hi", "bn", "mr", "te", "ta", "gu", "kn", "ml", "pa"] as const;
+/** Each plan language, named in its own script. */
+export const LANGUAGES: Record<(typeof LANGUAGE_CODES)[number], string> = {
   en: "English",
   hi: "हिन्दी",
   bn: "বাংলা",
@@ -13,7 +15,7 @@ export const LANGUAGES = {
   kn: "ಕನ್ನಡ",
   ml: "മലയാളം",
   pa: "ਪੰਜਾਬੀ",
-} as const;
+};
 export const VENDOR_STATUSES = ["todo", "contacted", "booked"] as const;
 export const IDEA_KINDS = ["theme", "decor", "menu", "activity", "gift"] as const;
 
@@ -34,7 +36,7 @@ export const BriefSchema = z.object({
   vibe: z.string().trim().max(200),
   traditions: z.array(text(40)).max(12),
   diet: z.string().trim().max(60),
-  language: z.enum(Object.keys(LANGUAGES) as [keyof typeof LANGUAGES]),
+  language: z.enum(LANGUAGE_CODES),
 });
 export type Brief = z.infer<typeof BriefSchema>;
 
@@ -63,7 +65,6 @@ export type RunSheetItem = z.infer<typeof RunSheetItemSchema>;
 export const VendorSchema = z.object({
   id: text(60),
   category: text(60),
-  name: z.string().trim().max(80),
   status: z.enum(VENDOR_STATUSES),
   quote: z.int().min(0).nullable(),
   questions: z.array(text(200)).max(8),

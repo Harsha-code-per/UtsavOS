@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import { useAuth } from "./AuthProvider";
 import { applyChange } from "@/lib/domain/plan";
 import type { Plan, PlanChange } from "@/lib/domain/schema";
 import {
@@ -17,8 +16,7 @@ import {
   subscribeSaveStatus,
   type SaveStatus,
 } from "@/lib/store/save-status";
-
-export type SaveState = SaveStatus;
+import { useAuth } from "./AuthProvider";
 
 /**
  * Plans on this device. Signing in merges the account's plans into local storage

@@ -51,12 +51,18 @@ export function attemptTimeout({ remaining, isLast }: { remaining: number; isLas
   return isLast ? remaining : Math.min(FALLBACK_ATTEMPT_MS, remaining);
 }
 
-function shouldTryNextModel(error: unknown): boolean {
-  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
-    return true;
+/** A loggable reason with no request content: the HTTP status, or the error's name. */
+function failureReason(error: unknown): number | string {
+  if (typeof error === "object" && error !== null && "status" in error) {
+    if (typeof error.status === "number") return error.status;
   }
-  const status = typeof error === "object" && error !== null && "status" in error && error.status;
-  return typeof status === "number" && FALL_THROUGH.has(status);
+  return error instanceof Error ? error.name : "unknown";
+}
+
+function shouldTryNextModel(error: unknown): boolean {
+  const reason = failureReason(error);
+  if (typeof reason === "number") return FALL_THROUGH.has(reason);
+  return reason === "TimeoutError" || reason === "AbortError";
 }
 
 /** Tries each model in turn within one time budget; a model that is down hands over to the next. */
@@ -79,7 +85,8 @@ function modelChainCaller(generate: Generate, models: string[]): Call {
           },
         });
       } catch (error) {
-        console.error(`Gemini request failed on ${model}`, error);
+        // Log what failed, never the request itself (it carries the person's brief).
+        console.error("gemini_request_failed", { model, reason: failureReason(error) });
         if (!shouldTryNextModel(error)) break;
       }
     }

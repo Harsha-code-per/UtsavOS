@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { vi } from "vitest";
 import { weddingPlan } from "@/test/fixtures";
 import {
   getLocalPlansSnapshot,
@@ -8,7 +9,6 @@ import {
   saveLocalPlan,
   subscribeLocalPlans,
 } from "./local";
-import { vi } from "vitest";
 
 const older = { ...weddingPlan, updatedAt: "2026-10-20T08:00:00.000Z" };
 const newer = {

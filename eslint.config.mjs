@@ -29,6 +29,21 @@ const eslintConfig = defineConfig([
       "max-lines-per-function": ["error", { max: 80, skipBlankLines: true, skipComments: true }],
     },
   },
+  {
+    // One import order everywhere: packages, then "@/" modules, then relative files, each sorted.
+    files: ["**/*.{ts,tsx,mts,mjs}"],
+    rules: {
+      "import/order": [
+        "error",
+        {
+          groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
+          pathGroups: [{ pattern: "@/**", group: "internal" }],
+          "newlines-between": "never",
+          alphabetize: { order: "asc", caseInsensitive: true },
+        },
+      ],
+    },
+  },
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",

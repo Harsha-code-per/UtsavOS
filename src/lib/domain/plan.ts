@@ -86,7 +86,6 @@ export function buildPlan(brief: Brief, draft: PlanDraft, ctx: BuildContext): Pl
     vendors: uniqueIds(draft.vendors, (v) => v.category).map((v) => ({
       id: v.id,
       category: v.category,
-      name: "",
       status: "todo" as const,
       quote: null,
       questions: v.questions,
@@ -151,7 +150,7 @@ const EDITORS: Editors = {
     if (plan.vendors.some((v) => v.id === id)) {
       throw new Error(`${category} is already on the checklist`);
     }
-    const vendor = { id, category, name: "", status: "todo" as const, quote: null, questions };
+    const vendor = { id, category, status: "todo" as const, quote: null, questions };
     return { ...plan, vendors: [...plan.vendors, vendor] };
   },
 

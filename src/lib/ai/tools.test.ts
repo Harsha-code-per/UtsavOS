@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { PlanChangeSchema } from "@/lib/domain/schema";
 import { planTools, toChanges, toGeminiSchema } from "./tools";
-import { z } from "zod";
 
 describe("planTools", () => {
   it("declares one Gemini function per plan change, with a description and JSON schema", () => {

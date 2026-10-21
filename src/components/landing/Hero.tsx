@@ -1,5 +1,5 @@
-import { HeroBrief } from "./HeroBrief";
 import styles from "./Hero.module.css";
+import { HeroBrief } from "./HeroBrief";
 import { PlanPreview } from "./PlanPreview";
 
 const HEADLINE = ["Every celebration,", "beautifully", "choreographed."];

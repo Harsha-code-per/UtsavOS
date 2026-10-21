@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api, errorMessage } from "@/lib/api/client";
 import type { BriefPatch } from "@/lib/ai/types";
+import { api, errorMessage } from "@/lib/api/client";
 import { takeDescription } from "@/lib/store/handoff";
 
 export interface QuickFillStatus {

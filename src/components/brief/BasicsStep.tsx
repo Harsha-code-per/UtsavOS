@@ -1,6 +1,6 @@
-import { localToday } from "@/lib/domain/timeline";
 import { EVENT_TYPE_LABEL, formatMoney, parseAmount } from "@/lib/domain/format";
 import { BriefSchema, CURRENCIES, EVENT_TYPES, type Brief } from "@/lib/domain/schema";
+import { localToday } from "@/lib/domain/timeline";
 import styles from "./BriefWizard.module.css";
 import { FieldError } from "./FieldError";
 import type { StepProps } from "./step-props";
