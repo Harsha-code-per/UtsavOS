@@ -3,6 +3,7 @@ import { mockPlanner } from "@/lib/ai/mock";
 import { getPlanner } from "@/lib/ai/planner";
 import { AiError, type Planner } from "@/lib/ai/types";
 import { PlanSchema } from "@/lib/domain/schema";
+import { fallbackDraft } from "@/lib/domain/templates";
 import { postJson, weddingBrief } from "@/test/fixtures";
 import { POST } from "./route";
 
@@ -70,5 +71,16 @@ describe("POST /api/plan", () => {
     for (let i = 0; i < 12; i++)
       statuses.push((await POST(postJson({ brief: weddingBrief }, "203.0.113.9"))).status);
     expect(statuses).toContain(429);
+  });
+
+  it("returns 422 when the draft can't be turned into a plan", async () => {
+    planner.mockReturnValue({
+      ...mockPlanner,
+      draftPlan: async () => ({ ...fallbackDraft(weddingBrief), budget: [] }),
+    });
+    const brief = { ...weddingBrief, name: "Unbuildable draft check" };
+    const res = await POST(postJson({ brief }));
+    expect(res.status).toBe(422);
+    expect((await res.json()).error).toMatch(/couldn't be built/);
   });
 });

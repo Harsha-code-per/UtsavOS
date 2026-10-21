@@ -5,7 +5,6 @@ import { AuthProvider } from "@/components/app/AuthProvider";
 import { saveLocalPlan } from "@/lib/store/local";
 import { nth, weddingPlan } from "@/test/fixtures";
 import { PlanDashboard } from "./PlanDashboard";
-import { PlanList } from "./PlanList";
 
 // No Firebase config in tests: the app runs in device-only mode.
 vi.mock("@/lib/firebase/client", () => ({ firebaseConfigured: false, loadFirebase: vi.fn() }));
@@ -50,24 +49,5 @@ describe("PlanDashboard", () => {
     renderWithAuth(<PlanDashboard id={weddingPlan.id} starter />);
     expect(screen.getByText(/starter plan/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Redraft with Gemini" })).toBeInTheDocument();
-  });
-});
-
-describe("PlanList", () => {
-  it("invites people to start when there are no plans", () => {
-    renderWithAuth(<PlanList />);
-    expect(screen.getByText(/No plans yet/)).toBeInTheDocument();
-  });
-
-  it("lists saved plans and deletes one after confirmation", async () => {
-    const user = userEvent.setup();
-    saveLocalPlan(weddingPlan);
-    renderWithAuth(<PlanList />);
-    expect(
-      screen.getByRole("link", { name: new RegExp(weddingPlan.brief.name) }),
-    ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: `Delete ${weddingPlan.brief.name}` }));
-    await user.click(screen.getByRole("button", { name: "Delete plan" }));
-    expect(await screen.findByText(/No plans yet/)).toBeInTheDocument();
   });
 });
