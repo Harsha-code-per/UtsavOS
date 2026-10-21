@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// Never compile validators with eval: the strict CSP forbids it, and even zod's guarded probe
+// is reported as a policy violation in the browser.
+z.config({ jitless: true });
+
 export const EVENT_TYPES = ["wedding", "birthday", "community", "festival"] as const;
 export const CURRENCIES = ["INR", "USD", "GBP", "EUR", "AED"] as const;
 export const LANGUAGE_CODES = ["en", "hi", "bn", "mr", "te", "ta", "gu", "kn", "ml", "pa"] as const;

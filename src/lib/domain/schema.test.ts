@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { weddingBrief } from "@/test/fixtures";
 import { BriefSchema, PlanChangeSchema } from "./schema";
+
+describe("zod configuration", () => {
+  it("validates without eval, so the strict CSP never reports a violation", () => {
+    expect(z.config().jitless).toBe(true);
+  });
+});
 
 describe("BriefSchema", () => {
   it("accepts a complete brief and trims text", () => {

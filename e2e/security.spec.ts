@@ -33,6 +33,15 @@ test("no console errors or CSP violations on the main flow pages", async ({ page
   const problems: string[] = [];
   page.on("console", (m) => m.type() === "error" && problems.push(m.text()));
   page.on("pageerror", (e) => problems.push(e.message));
-  for (const path of ["/", "/plan/new", "/plans"]) await page.goto(path);
+  // Some blocked actions (like a library's guarded eval probe) never reach the console.
+  await page.addInitScript(() => {
+    document.addEventListener("securitypolicyviolation", (e) => {
+      console.error(`CSP violation: ${e.violatedDirective} ${e.blockedURI}`);
+    });
+  });
+  for (const path of ["/", "/plan/new", "/plans"]) {
+    await page.goto(path);
+    await page.waitForLoadState("networkidle");
+  }
   expect(problems).toEqual([]);
 });
