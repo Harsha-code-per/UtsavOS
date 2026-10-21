@@ -28,7 +28,7 @@ async function boundedText(request: Request, maxBytes: number): Promise<string |
   return new TextEncoder().encode(body).length > maxBytes ? null : body;
 }
 
-function parseJson(body: string): { ok: true; value: unknown } | { ok: false } {
+function tryParseJson(body: string): { ok: true; value: unknown } | { ok: false } {
   try {
     return { ok: true, value: JSON.parse(body) as unknown };
   } catch {
@@ -55,7 +55,7 @@ export async function readJson<S extends z.ZodType>(
   const body = await boundedText(request, maxBytes);
   if (body === null) return reject(413, "Request is too large");
 
-  const json = parseJson(body);
+  const json = tryParseJson(body);
   if (!json.ok) return reject(400, "Request body must be valid JSON");
 
   const parsed = schema.safeParse(json.value);

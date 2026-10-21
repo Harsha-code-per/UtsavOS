@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { localToday } from "@/lib/domain/timeline";
-import { weddingBrief } from "@/test/fixtures";
+import { weddingBrief, weddingPlan } from "@/test/fixtures";
 import { api, errorMessage, isAbort } from "./client";
 
 afterEach(() => {
@@ -20,6 +20,13 @@ describe("api client", () => {
       description: "Pune birthday",
       today: localToday(),
     });
+  });
+
+  it("refuses a success response that doesn't match the expected shape", async () => {
+    vi.stubGlobal("fetch", async () => Response.json({ reply: 42 }));
+    await expect(api.chat(weddingPlan, [{ role: "user", text: "hi" }])).rejects.toThrow(
+      "Something went wrong. Please try again.",
+    );
   });
 
   it("surfaces the server's error message", async () => {
@@ -48,10 +55,6 @@ describe("api client", () => {
       throw new DOMException("aborted", "AbortError");
     });
     await expect(api.draftPlan(weddingBrief)).rejects.toMatchObject({ name: "AbortError" });
-  });
-
-  it("formats today as an ISO calendar date", () => {
-    expect(localToday()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it("reads an error's message, with a plain fallback for anything else", () => {

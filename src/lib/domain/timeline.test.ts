@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nth } from "@/test/fixtures";
-import { addDays, daysUntil, scheduleMilestones, trustedToday } from "./timeline";
+import { addDays, daysUntil, localToday, scheduleMilestones, trustedToday } from "./timeline";
 
 describe("daysUntil", () => {
   it("counts whole calendar days between ISO dates", () => {
@@ -74,5 +74,11 @@ describe("trustedToday", () => {
   it("falls back to the server date for missing or implausible client dates", () => {
     expect(trustedToday(undefined, now)).toBe("2026-10-20");
     expect(trustedToday("2030-01-01", now)).toBe("2026-10-20");
+  });
+});
+
+describe("localToday", () => {
+  it("formats the person's own date as an ISO calendar date", () => {
+    expect(localToday()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

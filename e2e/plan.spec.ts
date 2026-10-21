@@ -59,7 +59,7 @@ test("timeline tasks can be completed, added and exported to a calendar", async 
     page.getByRole("button", { name: "Download calendar (.ics)" }).click(),
   ]);
   expect(download.suggestedFilename()).toMatch(/\.ics$/);
-  const ics = readFileSync((await download.path())!, "utf8");
+  const ics = readFileSync(await download.path(), "utf8");
   expect(ics).toContain("BEGIN:VCALENDAR");
   expect(ics).toContain("SUMMARY:Sangeet rehearsal");
 });

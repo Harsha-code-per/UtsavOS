@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   groundingSources,
   jsonArrayIn,
-  parseJson,
+  parseModelJson,
   proposalReply,
   stripEmphasis,
   validBriefPatch,
@@ -12,9 +12,9 @@ import { AiError } from "./types";
 
 describe("model output guards", () => {
   it("parses JSON and turns unreadable answers into a friendly AiError", () => {
-    expect(parseJson('{"a":1}')).toEqual({ a: 1 });
-    expect(() => parseJson("not json")).toThrow(AiError);
-    expect(() => parseJson(undefined)).toThrow(AiError);
+    expect(parseModelJson('{"a":1}')).toEqual({ a: 1 });
+    expect(() => parseModelJson("not json")).toThrow(AiError);
+    expect(() => parseModelJson(undefined)).toThrow(AiError);
   });
 
   it("finds the JSON array inside a prose answer", () => {

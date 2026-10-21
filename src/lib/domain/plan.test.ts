@@ -132,7 +132,7 @@ describe("applyChange", () => {
       title: "Seed paper cards",
       description: "Grow tulsi.",
     });
-    expect(next.ideas.at(-1)!.title).toBe("Seed paper cards");
+    expect(next.ideas.at(-1)?.title).toBe("Seed paper cards");
   });
 
   it("refreshes updatedAt and never mutates the original plan", () => {

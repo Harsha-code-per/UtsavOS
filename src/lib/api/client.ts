@@ -1,5 +1,12 @@
-import type { BriefPatch, ChatMessage, IdeaDraft, Source } from "@/lib/ai/types";
-import type { Brief, Plan, PlanChange } from "@/lib/domain/schema";
+import { z } from "zod";
+import { IdeaDraftSchema, SourceSchema, type ChatMessage } from "@/lib/ai/types";
+import {
+  BriefSchema,
+  PlanChangeSchema,
+  PlanSchema,
+  type Brief,
+  type Plan,
+} from "@/lib/domain/schema";
 import { localToday } from "@/lib/domain/timeline";
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
@@ -12,10 +19,18 @@ export const errorMessage = (error: unknown) =>
 export const isAbort = (error: unknown) =>
   error instanceof DOMException && error.name === "AbortError";
 
-async function post<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
-  let res: Response;
+/** The JSON responses of this app's own API, checked before the UI trusts them. */
+const Responses = {
+  plan: z.object({ plan: PlanSchema, source: z.string(), notice: z.string().optional() }),
+  brief: z.object({ patch: BriefSchema.partial() }),
+  chat: z.object({ reply: z.string(), changes: z.array(PlanChangeSchema) }),
+  ideas: z.object({ ideas: z.array(IdeaDraftSchema), sources: z.array(SourceSchema) }),
+};
+const ErrorBody = z.object({ error: z.string() });
+
+async function send(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
   try {
-    res = await fetch(path, {
+    return await fetch(path, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
@@ -25,21 +40,27 @@ async function post<T>(path: string, body: unknown, signal?: AbortSignal): Promi
     if (isAbort(error)) throw error;
     throw new Error("You seem to be offline. Check your connection and try again.");
   }
-  const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new Error(data.error ?? GENERIC_ERROR);
-  return data as T;
+}
+
+async function post<S extends z.ZodType>(
+  path: string,
+  schema: S,
+  { body, signal }: { body: unknown; signal?: AbortSignal },
+): Promise<z.infer<S>> {
+  const res = await send(path, body, signal);
+  const data: unknown = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(ErrorBody.safeParse(data).data?.error ?? GENERIC_ERROR);
+  const parsed = schema.safeParse(data);
+  if (!parsed.success) throw new Error(GENERIC_ERROR);
+  return parsed.data;
 }
 
 export const api = {
   draftPlan: (brief: Brief, signal?: AbortSignal) =>
-    post<{ plan: Plan; source: string; notice?: string }>(
-      "/api/plan",
-      { brief, today: localToday() },
-      signal,
-    ),
+    post("/api/plan", Responses.plan, { body: { brief, today: localToday() }, signal }),
   parseBrief: (description: string) =>
-    post<{ patch: BriefPatch }>("/api/brief", { description, today: localToday() }),
+    post("/api/brief", Responses.brief, { body: { description, today: localToday() } }),
   chat: (plan: Plan, messages: ChatMessage[]) =>
-    post<{ reply: string; changes: PlanChange[] }>("/api/chat", { plan, messages }),
-  ideas: (brief: Brief) => post<{ ideas: IdeaDraft[]; sources: Source[] }>("/api/ideas", { brief }),
+    post("/api/chat", Responses.chat, { body: { plan, messages } }),
+  ideas: (brief: Brief) => post("/api/ideas", Responses.ideas, { body: { brief } }),
 };

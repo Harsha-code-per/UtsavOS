@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { buildPlan } from "@/lib/domain/plan";
 import type { Brief } from "@/lib/domain/schema";
 import { fallbackDraft } from "@/lib/domain/templates";
+import { nth } from "@/test/fixtures";
 import { createGeminiPlanner, type Generate } from "./gemini";
 import { mockPlanner } from "./mock";
 import { getPlanner, modelChain } from "./planner";
@@ -38,7 +39,7 @@ describe("createGeminiPlanner", () => {
     );
 
     expect(result).toEqual(draft);
-    const call = generate.mock.calls[0]![0];
+    const call = nth(generate.mock.calls, 0)[0];
     expect(call.model).toBe("gemini-test");
     expect(call.config?.responseMimeType).toBe("application/json");
     expect(call.config?.responseJsonSchema).toMatchObject({ type: "object" });
@@ -96,7 +97,7 @@ describe("createGeminiPlanner", () => {
       reply: "Moved ₹25,000 into decor.",
       changes: [{ op: "moveBudget", from: "entertainment", to: "decor", amount: 25000 }],
     });
-    const call = generate.mock.calls[0]![0];
+    const call = nth(generate.mock.calls, 0)[0];
     expect(call.contents).toEqual([
       { role: "user", parts: [{ text: "Hi" }] },
       { role: "model", parts: [{ text: "Hello!" }] },
@@ -153,7 +154,7 @@ describe("createGeminiPlanner", () => {
     });
     const result = await createGeminiPlanner(generate, ["m"]).ideas(brief);
 
-    expect(generate.mock.calls[0]![0].config?.tools).toEqual([{ googleSearch: {} }]);
+    expect(nth(generate.mock.calls, 0)[0].config?.tools).toEqual([{ googleSearch: {} }]);
     expect(result.ideas).toEqual([
       { kind: "menu", title: "Irani chai counter", description: "Osmania biscuits too." },
     ]);
@@ -171,7 +172,7 @@ describe("ideas without Search grounding", () => {
     const result = await createGeminiPlanner(generate, ["m"]).ideas(brief);
 
     expect(result).toEqual({ ideas: [idea], sources: [] });
-    const fallback = generate.mock.calls[1]![0];
+    const fallback = nth(generate.mock.calls, 1)[0];
     expect(fallback.config?.tools).toBeUndefined();
     expect(fallback.config?.responseJsonSchema).toMatchObject({ type: "array" });
   });
@@ -183,7 +184,6 @@ describe("mockPlanner", () => {
   });
 
   it("proposes moving spare money into an overspent category", async () => {
-    const decor = plan.budget.find((l) => l.id === "decor")!;
     const overspent = {
       ...plan,
       budget: plan.budget.map((l) => (l.id === "decor" ? { ...l, spent: l.allocated + 8000 } : l)),
@@ -191,7 +191,7 @@ describe("mockPlanner", () => {
     const { changes } = await mockPlanner.chat(overspent, [
       { role: "user", text: "fix my budget" },
     ]);
-    expect(changes[0]).toMatchObject({ op: "moveBudget", to: decor.id, amount: 8000 });
+    expect(changes[0]).toMatchObject({ op: "moveBudget", to: "decor", amount: 8000 });
   });
 });
 

@@ -5,7 +5,7 @@ import { BriefSchema, PlanDraftSchema, type Brief, type Plan } from "@/lib/domai
 import {
   groundingSources,
   jsonArrayIn,
-  parseJson,
+  parseModelJson,
   proposalReply,
   stripEmphasis,
   validBriefPatch,
@@ -104,7 +104,7 @@ async function draftPlan(call: Call, brief: Brief, today: string) {
       temperature: 0.8,
     },
   });
-  const draft = sanitizeDraft(parseJson(res.text));
+  const draft = sanitizeDraft(parseModelJson(res.text));
   if (!draft) throw new AiError("The planner's draft was incomplete. Please try again.");
   return draft;
 }
@@ -119,7 +119,7 @@ async function parseBrief(call: Call, description: string, today: string) {
       temperature: 0.2,
     },
   });
-  return validBriefPatch(parseJson(res.text));
+  return validBriefPatch(parseModelJson(res.text));
 }
 
 async function chat(call: Call, plan: Plan, messages: ChatMessage[]): Promise<ChatResult> {
@@ -168,7 +168,7 @@ async function ideas(call: Call, brief: Brief): Promise<IdeasResult> {
       temperature: 0.9,
     },
   });
-  const plain = validIdeas(parseJson(res.text));
+  const plain = validIdeas(parseModelJson(res.text));
   if (!plain.length) throw new AiError("No ideas came back. Please try again.");
   return { ideas: plain, sources: [] };
 }

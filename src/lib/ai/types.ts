@@ -22,10 +22,8 @@ export type IdeaDraft = z.infer<typeof IdeaDraftSchema>;
 
 export type BriefPatch = Partial<Brief>;
 
-export interface Source {
-  uri: string;
-  title: string;
-}
+export const SourceSchema = z.object({ uri: z.url(), title: z.string() });
+export type Source = z.infer<typeof SourceSchema>;
 
 export interface ChatResult {
   reply: string;

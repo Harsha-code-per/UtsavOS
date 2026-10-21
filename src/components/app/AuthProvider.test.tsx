@@ -10,6 +10,11 @@ import { AuthProvider } from "./AuthProvider";
 
 const auth = vi.hoisted(() => ({
   listener: null as null | ((user: unknown) => void),
+  /** Fires the auth state listener the provider registered. */
+  emit(user: unknown) {
+    if (!auth.listener) throw new Error("AuthProvider has not subscribed to auth state yet");
+    auth.listener(user);
+  },
   signInWithPopup: vi.fn(),
   signOut: vi.fn(),
 }));
@@ -51,7 +56,7 @@ describe("AuthProvider and AuthButton", () => {
   it("offers Google sign-in when signed out", async () => {
     const user = userEvent.setup();
     await renderButton();
-    auth.listener!(null);
+    auth.emit(null);
     await user.click(await screen.findByRole("button", { name: "Sign in with Google" }));
     expect(auth.signInWithPopup).toHaveBeenCalled();
   });
@@ -62,7 +67,7 @@ describe("AuthProvider and AuthButton", () => {
     saveLocalPlan(weddingPlan);
     await renderButton();
 
-    auth.listener!({ uid: "u1", displayName: "Ananya" });
+    auth.emit({ uid: "u1", displayName: "Ananya" });
     expect(await screen.findByText("Ananya")).toBeInTheDocument();
     await waitFor(() => expect(saveRemotePlan).toHaveBeenCalledWith("u1", weddingPlan));
     expect(saveRemotePlan).not.toHaveBeenCalledWith("u1", remoteOnly);
@@ -77,7 +82,7 @@ describe("AuthProvider and AuthButton", () => {
   it("explains blocked pop-ups but stays quiet when the person closes the pop-up", async () => {
     const user = userEvent.setup();
     await renderButton();
-    auth.listener!(null);
+    auth.emit(null);
 
     auth.signInWithPopup.mockRejectedValueOnce({ code: "auth/popup-closed-by-user" });
     await user.click(await screen.findByRole("button", { name: "Sign in with Google" }));
@@ -91,10 +96,10 @@ describe("AuthProvider and AuthButton", () => {
   it("signs out", async () => {
     const user = userEvent.setup();
     await renderButton();
-    auth.listener!({ uid: "u1", displayName: "Ananya" });
+    auth.emit({ uid: "u1", displayName: "Ananya" });
     await user.click(await screen.findByRole("button", { name: "Sign out" }));
     expect(auth.signOut).toHaveBeenCalled();
-    auth.listener!(null);
+    auth.emit(null);
     await waitFor(() => expect(getSaveStatus()).toBe("device"));
   });
 });

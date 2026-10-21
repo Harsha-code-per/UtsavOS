@@ -75,8 +75,8 @@ describe("moveBudget", () => {
 
   it("moves money between categories and keeps the total unchanged", () => {
     const next = moveBudget(lines, { from: "ent", to: "decor", amount: 25 });
-    expect(next.find((l) => l.id === "ent")!.allocated).toBe(100);
-    expect(next.find((l) => l.id === "decor")!.allocated).toBe(325);
+    expect(next.find((l) => l.id === "ent")?.allocated).toBe(100);
+    expect(next.find((l) => l.id === "decor")?.allocated).toBe(325);
     expect(sum(next.map((l) => l.allocated))).toBe(425);
   });
 

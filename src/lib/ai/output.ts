@@ -4,7 +4,7 @@ import { AiError, IdeaDraftSchema, type BriefPatch, type IdeaDraft, type Source 
 
 // Model output is untrusted: everything here validates or cleans it before the app uses it.
 
-export function parseJson(text: string | undefined): unknown {
+export function parseModelJson(text: string | undefined): unknown {
   try {
     return JSON.parse(text ?? "") as unknown;
   } catch {
@@ -14,7 +14,7 @@ export function parseJson(text: string | undefined): unknown {
 
 /** The JSON array inside a text answer (grounded answers can't use a response schema). */
 export const jsonArrayIn = (text: string) =>
-  parseJson(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1));
+  parseModelJson(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1));
 
 /** Keeps each brief field that validates on its own, so one bad guess doesn't lose the rest. */
 export function validBriefPatch(raw: unknown): BriefPatch {
