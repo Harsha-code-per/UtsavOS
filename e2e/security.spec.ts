@@ -31,7 +31,11 @@ test("AI endpoints reject malformed input", async ({ request }) => {
 
 test("no console errors or CSP violations on the main flow pages", async ({ page }) => {
   const problems: string[] = [];
-  page.on("console", (m) => m.type() === "error" && problems.push(m.text()));
+  // Only our own origin counts: third-party frames (Firebase's auth helper) log their own noise.
+  const ours = (url: string) => url === "" || url.startsWith(new URL(page.url()).origin);
+  page.on("console", (m) => {
+    if (m.type() === "error" && ours(m.location().url)) problems.push(m.text());
+  });
   page.on("pageerror", (e) => problems.push(e.message));
   // Some blocked actions (like a library's guarded eval probe) never reach the console.
   await page.addInitScript(() => {
