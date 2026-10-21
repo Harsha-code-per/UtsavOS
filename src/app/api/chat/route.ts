@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChatMessageSchema } from "@/lib/ai/planner";
+import { ChatMessageSchema } from "@/lib/ai/types";
 import { json } from "@/lib/api/http";
 import { aiRoute } from "@/lib/api/route";
 import { applicableChanges } from "@/lib/domain/plan";

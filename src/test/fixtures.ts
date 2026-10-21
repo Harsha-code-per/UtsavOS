@@ -1,5 +1,6 @@
-import { buildPlan, fallbackDraft } from "@/lib/domain/plan";
+import { buildPlan } from "@/lib/domain/plan";
 import type { Brief } from "@/lib/domain/schema";
+import { fallbackDraft } from "@/lib/domain/templates";
 
 export const weddingBrief: Brief = {
   type: "wedding",

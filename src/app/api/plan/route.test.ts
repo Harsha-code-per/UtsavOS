@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AiError, getPlanner, mockPlanner, type Planner } from "@/lib/ai/planner";
+import { mockPlanner } from "@/lib/ai/mock";
+import { getPlanner } from "@/lib/ai/planner";
+import { AiError, type Planner } from "@/lib/ai/types";
 import { PlanSchema } from "@/lib/domain/schema";
 import { postJson, weddingBrief } from "@/test/fixtures";
 import { POST } from "./route";

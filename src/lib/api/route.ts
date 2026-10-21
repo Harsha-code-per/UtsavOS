@@ -1,5 +1,6 @@
 import type { z } from "zod";
-import { AiError, getPlanner, type Planner } from "@/lib/ai/planner";
+import { getPlanner } from "@/lib/ai/planner";
+import { AiError, type Planner } from "@/lib/ai/types";
 import { clientKey, createRateLimiter } from "@/lib/security/rate-limit";
 import { errorResponse, rateLimited, readJson } from "./http";
 

@@ -14,10 +14,7 @@ import {
   type PlanDraft,
 } from "./schema";
 import { slugify } from "./slug";
-import { fallbackDraft } from "./templates";
 import { scheduleMilestones } from "./timeline";
-
-export { fallbackDraft };
 
 interface BuildContext {
   id: string;

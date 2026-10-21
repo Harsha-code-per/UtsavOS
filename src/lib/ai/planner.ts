@@ -3,11 +3,6 @@ import { createGeminiPlanner } from "./gemini";
 import { mockPlanner } from "./mock";
 import type { Planner } from "./types";
 
-// Public entry point of the AI layer.
-export * from "./types";
-export { createGeminiPlanner, type Generate } from "./gemini";
-export { mockPlanner } from "./mock";
-
 /**
  * Tried in order: a model that is overloaded, rate limited or retired hands over to the next.
  * Override with GEMINI_MODEL. ("gemini-flash-latest" is left out: it aliases the first entry.)

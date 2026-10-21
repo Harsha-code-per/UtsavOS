@@ -1,10 +1,12 @@
 import { z } from "zod";
-import { AiError, getPlanner } from "@/lib/ai/planner";
+import { getPlanner } from "@/lib/ai/planner";
+import { AiError } from "@/lib/ai/types";
 import { createTtlCache } from "@/lib/api/cache";
 import { errorResponse, json } from "@/lib/api/http";
 import { guardedRoute } from "@/lib/api/route";
-import { buildPlan, fallbackDraft } from "@/lib/domain/plan";
+import { buildPlan } from "@/lib/domain/plan";
 import { BriefSchema, type Brief, type PlanDraft } from "@/lib/domain/schema";
+import { fallbackDraft } from "@/lib/domain/templates";
 import { trustedToday } from "@/lib/domain/timeline";
 
 export const maxDuration = 60;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { applicableChanges, applyChange, buildPlan, fallbackDraft, sanitizeDraft } from "./plan";
+import { applicableChanges, applyChange, buildPlan, sanitizeDraft } from "./plan";
 import { EVENT_TYPES, PlanSchema, type Brief } from "./schema";
+import { fallbackDraft } from "./templates";
 
 const brief: Brief = {
   type: "wedding",

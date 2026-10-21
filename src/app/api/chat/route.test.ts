@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getPlanner, mockPlanner } from "@/lib/ai/planner";
+import { mockPlanner } from "@/lib/ai/mock";
+import { getPlanner } from "@/lib/ai/planner";
 import { postJson, weddingPlan } from "@/test/fixtures";
 import { POST } from "./route";
 

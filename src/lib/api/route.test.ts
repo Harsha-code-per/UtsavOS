@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { AiError, getPlanner, mockPlanner } from "@/lib/ai/planner";
+import { mockPlanner } from "@/lib/ai/mock";
+import { getPlanner } from "@/lib/ai/planner";
+import { AiError } from "@/lib/ai/types";
 import { postJson } from "@/test/fixtures";
 import { aiRoute } from "./route";
 

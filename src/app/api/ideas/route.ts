@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Planner } from "@/lib/ai/planner";
+import type { Planner } from "@/lib/ai/types";
 import { createTtlCache } from "@/lib/api/cache";
 import { json } from "@/lib/api/http";
 import { aiRoute } from "@/lib/api/route";

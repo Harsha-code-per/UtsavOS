@@ -1,14 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildPlan, fallbackDraft } from "@/lib/domain/plan";
+import { buildPlan } from "@/lib/domain/plan";
 import type { Brief } from "@/lib/domain/schema";
-import {
-  AiError,
-  createGeminiPlanner,
-  getPlanner,
-  mockPlanner,
-  modelChain,
-  type Generate,
-} from "./planner";
+import { fallbackDraft } from "@/lib/domain/templates";
+import { createGeminiPlanner, type Generate } from "./gemini";
+import { mockPlanner } from "./mock";
+import { getPlanner, modelChain } from "./planner";
+import { AiError } from "./types";
 
 const brief: Brief = {
   type: "wedding",

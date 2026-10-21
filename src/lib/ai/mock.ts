@@ -1,6 +1,6 @@
 import { categoryName } from "@/lib/domain/format";
-import { fallbackDraft } from "@/lib/domain/plan";
 import type { BudgetLine, Plan, PlanChange } from "@/lib/domain/schema";
+import { fallbackDraft } from "@/lib/domain/templates";
 import type { Planner } from "./types";
 
 const room = (line: BudgetLine) => line.allocated - line.spent;

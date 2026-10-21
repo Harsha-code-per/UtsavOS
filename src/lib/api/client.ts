@@ -1,4 +1,4 @@
-import type { BriefPatch, ChatMessage, IdeaDraft, Source } from "@/lib/ai/planner";
+import type { BriefPatch, ChatMessage, IdeaDraft, Source } from "@/lib/ai/types";
 import type { Brief, Plan, PlanChange } from "@/lib/domain/schema";
 import { localToday } from "@/lib/domain/timeline";
 
