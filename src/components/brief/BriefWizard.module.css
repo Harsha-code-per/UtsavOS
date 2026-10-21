@@ -105,6 +105,8 @@
   font-weight: 600;
 }
 
+/* Focus lands here programmatically so screen readers announce the new step;
+   the heading isn't interactive, so it shows no ring. */
 .stepTitle:focus {
   outline: none;
 }

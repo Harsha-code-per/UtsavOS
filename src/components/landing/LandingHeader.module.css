@@ -21,9 +21,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 1.5rem;
+  margin-left: auto;
 }
 
-.nav a:not(:global(.btn)) {
+.nav a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -31,12 +32,18 @@
   text-decoration: none;
 }
 
-.nav a:not(:global(.btn)):hover {
+.nav a:hover {
   color: var(--diya);
 }
 
+/* On phones the call to action stays beside the logo and the links take their own row. */
 @media (max-width: 600px) {
-  .nav a:not(:global(.btn)) {
-    display: none;
+  .nav {
+    order: 1;
+    width: 100%;
+    justify-content: space-between;
+    gap: 0 1rem;
+    margin-left: 0;
+    font-size: 0.9375rem;
   }
 }

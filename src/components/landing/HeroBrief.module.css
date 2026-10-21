@@ -17,6 +17,12 @@
   border-color: var(--marigold);
 }
 
+/* The input's focus ring is drawn around the whole form, so it reads as one field. */
+.form:has(.input:focus-visible) {
+  outline: 3px solid var(--marigold);
+  outline-offset: 2px;
+}
+
 .input {
   flex: 1 1 18rem;
   min-width: 0;
@@ -33,7 +39,7 @@
 }
 
 .input:focus-visible {
-  outline: none;
+  outline: none; /* replaced by the form's ring above */
 }
 
 .types {

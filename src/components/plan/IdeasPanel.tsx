@@ -88,9 +88,11 @@ function FreshIdeas({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
         Gemini suggests ideas for what&rsquo;s local and in season, using Google Search when it can.
         Add the ones you like to the plan.
       </p>
-      <p role="status" className={styles.error}>
-        {state.error}
-      </p>
+      {state.error && (
+        <p role="alert" className={styles.error}>
+          {state.error}
+        </p>
+      )}
       {fresh && (
         <>
           <ul className={styles.ideas}>

@@ -1,6 +1,6 @@
 import type { FunctionDeclaration } from "@google/genai";
 import { z } from "zod";
-import { PlanChangeSchema, type PlanChange } from "@/lib/domain/schema";
+import { LooseObject, PlanChangeSchema, type PlanChange } from "@/lib/domain/schema";
 
 const DESCRIPTIONS: Record<PlanChange["op"], string> = {
   moveBudget: "Move money from one budget category to another. The total budget stays the same.",
@@ -17,9 +17,11 @@ const DESCRIPTIONS: Record<PlanChange["op"], string> = {
 const UNSUPPORTED = new Set(["$schema", "pattern", "minItems", "maxItems", "additionalProperties"]);
 
 export function toGeminiSchema(schema: z.ZodType): Record<string, unknown> {
-  return JSON.parse(JSON.stringify(z.toJSONSchema(schema)), (key: string, value: unknown) =>
-    UNSUPPORTED.has(key) ? undefined : value,
-  ) as Record<string, unknown>;
+  const cleaned: unknown = JSON.parse(
+    JSON.stringify(z.toJSONSchema(schema)),
+    (key: string, value: unknown) => (UNSUPPORTED.has(key) ? undefined : value),
+  );
+  return LooseObject.parse(cleaned);
 }
 
 export const planTools: FunctionDeclaration[] = PlanChangeSchema.options.map((option) => {
@@ -27,7 +29,7 @@ export const planTools: FunctionDeclaration[] = PlanChangeSchema.options.map((op
   return {
     name,
     description: DESCRIPTIONS[name],
-    parametersJsonSchema: toGeminiSchema((option as z.ZodObject).omit({ op: true })),
+    parametersJsonSchema: toGeminiSchema(z.object(option.shape).omit({ op: true })),
   };
 });
 

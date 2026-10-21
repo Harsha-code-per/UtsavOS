@@ -164,6 +164,12 @@
   border-color: var(--marigold);
 }
 
+/* The input's focus ring is drawn around the whole composer, so it reads as one field. */
+.composer:has(input:focus-visible) {
+  outline: 3px solid var(--marigold);
+  outline-offset: 2px;
+}
+
 .composer input {
   flex: 1;
   min-width: 0;
@@ -179,7 +185,7 @@
 }
 
 .composer input:focus-visible {
-  outline: none;
+  outline: none; /* replaced by the composer's ring above */
 }
 
 .iconButton,

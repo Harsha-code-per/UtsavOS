@@ -14,10 +14,10 @@ export function LandingHeader() {
           <a href="#how">How it works</a>
           <a href="#coplanner">Co-planner</a>
           <Link href="/plans">My plans</Link>
-          <Link href="/plan/new" className="btn btn-primary btn-small">
-            Plan a celebration
-          </Link>
         </nav>
+        <Link href="/plan/new" className="btn btn-primary btn-small">
+          Plan a celebration
+        </Link>
       </header>
     </>
   );
