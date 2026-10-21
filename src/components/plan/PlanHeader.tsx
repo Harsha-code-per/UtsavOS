@@ -3,7 +3,7 @@ import { EVENT_TYPE_LABEL, formatDate } from "@/lib/domain/format";
 import type { Plan } from "@/lib/domain/schema";
 import { daysUntil, localToday } from "@/lib/domain/timeline";
 import type { SaveStatus } from "@/lib/store/save-status";
-import styles from "./PlanDashboard.module.css";
+import styles from "./PlanHeader.module.css";
 
 const SAVE_LABEL: Record<SaveStatus, string> = {
   device: "Saved on this device",

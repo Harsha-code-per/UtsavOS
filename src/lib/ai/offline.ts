@@ -17,9 +17,9 @@ function proposeRebalance(plan: Plan): PlanChange | null {
   return amount > 0 ? { op: "moveBudget", from: from.id, to: to.id, amount } : null;
 }
 
-/** Deterministic stand-in for Gemini, used in end-to-end tests (UTSAV_AI_MOCK=1). */
-export const mockPlanner: Planner = {
-  source: "mock",
+/** A deterministic, keyless planner: runs the app without Gemini (UTSAV_AI_OFFLINE=1) and backs the e2e tests. */
+export const offlinePlanner: Planner = {
+  source: "offline",
   draftPlan: (brief) => Promise.resolve(fallbackDraft(brief)),
   parseBrief: () =>
     Promise.resolve({

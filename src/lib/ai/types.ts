@@ -37,7 +37,7 @@ export interface IdeasResult {
 
 /** Everything the app asks of a language model. Implemented by Gemini and by a test double. */
 export interface Planner {
-  source: "gemini" | "mock";
+  source: "gemini" | "offline";
   draftPlan: (brief: Brief, today: string) => Promise<PlanDraft>;
   parseBrief: (description: string, today: string) => Promise<BriefPatch>;
   chat: (plan: Plan, messages: ChatMessage[]) => Promise<ChatResult>;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { api, errorMessage } from "@/lib/api/client";
 import type { Plan } from "@/lib/domain/schema";
-import styles from "./PlanDashboard.module.css";
+import styles from "./StarterNotice.module.css";
 
 const STARTER_TEXT =
   "Gemini was busy, so this is a starter plan from proven templates. Redraft it once Gemini is free, or ask the co-planner to tailor it.";

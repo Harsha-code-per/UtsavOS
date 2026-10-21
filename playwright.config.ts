@@ -17,7 +17,7 @@ export default defineConfig({
     port: PORT,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
-    // E2E runs against the deterministic mock model, never the real Gemini API.
-    env: { UTSAV_AI_MOCK: "1" },
+    // E2E runs against the deterministic offline planner, never the real Gemini API.
+    env: { UTSAV_AI_OFFLINE: "1" },
   },
 });

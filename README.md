@@ -42,7 +42,7 @@ src/
   app/              pages, and the API routes (each declared through lib/api/route.ts)
   components/       brief wizard, plan dashboard, landing page, auth, brand
   lib/domain/       pure plan logic: schema, budget, timeline, iCal, plan changes, formatting
-  lib/ai/           Gemini adapter and model chain, prompts, tools, output guards, test mock
+  lib/ai/           Gemini adapter and model chain, prompts, tools, output guards, offline planner
   lib/api/          route guard (rate limit + validated body), HTTP helpers, cache, browser client
   lib/security/     CSP builder, rate limiter
   lib/store/        local and Firestore persistence
@@ -74,6 +74,6 @@ npm install
 npm run dev                  # http://localhost:3000
 ```
 
-`UTSAV_AI_MOCK=1` runs without a Gemini key, using the deterministic planner the end-to-end tests use. Without Firebase config, sign-in is hidden and plans stay on the device. `GEMINI_MODEL` overrides the model chain (comma-separated).
+`UTSAV_AI_OFFLINE=1` runs without a Gemini key, using the deterministic planner the end-to-end tests use. Without Firebase config, sign-in is hidden and plans stay on the device. `GEMINI_MODEL` overrides the model chain (comma-separated).
 
 Stack: Next.js 16, React 19, TypeScript, zod 4, `@google/genai`, Firebase (Auth, Firestore), Vitest, Playwright.

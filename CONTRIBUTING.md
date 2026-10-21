@@ -7,7 +7,7 @@ Use the Node version in [`.nvmrc`](.nvmrc), then:
 ```bash
 npm install
 cp .env.example .env.local   # optional: GEMINI_API_KEY and Firebase web config
-UTSAV_AI_MOCK=1 npm run dev  # works without any keys
+UTSAV_AI_OFFLINE=1 npm run dev  # works without any keys
 ```
 
 ## Where code goes
@@ -15,7 +15,7 @@ UTSAV_AI_MOCK=1 npm run dev  # works without any keys
 | Layer          | Holds                                                                       | May import                 |
 | -------------- | --------------------------------------------------------------------------- | -------------------------- |
 | `lib/domain`   | Pure plan logic: schema, budget, timeline, iCal, plan changes, formats      | nothing outside `domain`   |
-| `lib/ai`       | The `Planner` interface, the Gemini adapter, the mock, prompts, guards      | `domain`                   |
+| `lib/ai`       | The `Planner` interface, the Gemini adapter, the offline planner, prompts   | `domain`                   |
 | `lib/api`      | HTTP helpers, the shared route guard, the TTL cache, the typed client       | `domain`, `ai`, `security` |
 | `lib/store`    | Local and Firestore persistence, framework-free                             | `domain`, `firebase`       |
 | `components/*` | UI, one feature folder each; logic lives in `use*.ts` hooks or pure modules | any `lib`                  |

@@ -1,0 +1,57 @@
+/* Plan header: event summary, save state and headline stats. */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.meta {
+  color: var(--kumkum-deep);
+  font-weight: 600;
+}
+
+.title {
+  margin-top: 0.25rem;
+  font-family: var(--font-display-stack);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.save {
+  margin-top: 0.6rem;
+  color: var(--muted-on-ivory);
+  font-size: 0.9375rem;
+}
+
+.save[data-state="error"] {
+  color: var(--kumkum);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 0.25rem 2.5rem;
+}
+
+.stats dt {
+  color: var(--muted-on-ivory);
+  font-size: 0.9375rem;
+}
+
+.stats dd {
+  font-family: var(--font-display-stack);
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+@media (max-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(2, auto);
+  }
+}

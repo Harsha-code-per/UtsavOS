@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { mockPlanner } from "@/lib/ai/mock";
+import { offlinePlanner } from "@/lib/ai/offline";
 import { getPlanner } from "@/lib/ai/planner";
 import { AiError } from "@/lib/ai/types";
 import { postJson } from "@/test/fixtures";
@@ -13,7 +13,7 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 const planner = vi.mocked(getPlanner);
 
 beforeEach(() => {
-  planner.mockReturnValue(mockPlanner);
+  planner.mockReturnValue(offlinePlanner);
 });
 
 const echo = (options: { limit?: number } = {}) =>

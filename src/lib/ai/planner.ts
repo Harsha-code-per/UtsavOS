@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { createGeminiPlanner } from "./gemini";
-import { mockPlanner } from "./mock";
+import { offlinePlanner } from "./offline";
 import type { Planner } from "./types";
 
 /**
@@ -18,9 +18,9 @@ export function modelChain(env: Env): string[] {
   return configured?.length ? configured : DEFAULT_MODELS;
 }
 
-/** The mock in tests (UTSAV_AI_MOCK=1), Gemini when a key is set, otherwise nothing. */
+/** The offline planner when UTSAV_AI_OFFLINE=1, Gemini when a key is set, otherwise nothing. */
 export function getPlanner(env: Env = process.env): Planner | null {
-  if (env.UTSAV_AI_MOCK === "1") return mockPlanner;
+  if (env.UTSAV_AI_OFFLINE === "1") return offlinePlanner;
   if (!env.GEMINI_API_KEY) return null;
   // One quick SDK-level retry per model; the model chain handles longer outages.
   const ai = new GoogleGenAI({

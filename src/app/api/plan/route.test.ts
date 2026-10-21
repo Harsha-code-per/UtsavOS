@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockPlanner } from "@/lib/ai/mock";
+import { offlinePlanner } from "@/lib/ai/offline";
 import { getPlanner } from "@/lib/ai/planner";
 import { AiError, type Planner } from "@/lib/ai/types";
 import { PlanSchema } from "@/lib/domain/schema";
@@ -14,7 +14,7 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 const planner = vi.mocked(getPlanner);
 
 beforeEach(() => {
-  planner.mockReturnValue(mockPlanner);
+  planner.mockReturnValue(offlinePlanner);
 });
 
 describe("POST /api/plan", () => {
@@ -24,13 +24,13 @@ describe("POST /api/plan", () => {
     );
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.source).toBe("mock");
+    expect(body.source).toBe("offline");
     expect(PlanSchema.parse(body.plan).budget.reduce((a, l) => a + l.allocated, 0)).toBe(2_500_000);
   });
 
   it("falls back to a starter plan, with a notice, when Gemini fails", async () => {
     planner.mockReturnValue({
-      ...mockPlanner,
+      ...offlinePlanner,
       source: "gemini",
       draftPlan: () => Promise.reject(new AiError("Gemini is unavailable right now.")),
     } satisfies Planner);
@@ -51,13 +51,13 @@ describe("POST /api/plan", () => {
   });
 
   it("serves a repeated identical brief from cache without calling Gemini again", async () => {
-    const draftPlan = vi.fn(mockPlanner.draftPlan);
-    planner.mockReturnValue({ ...mockPlanner, draftPlan });
+    const draftPlan = vi.fn(offlinePlanner.draftPlan);
+    planner.mockReturnValue({ ...offlinePlanner, draftPlan });
     const repeat = { ...weddingBrief, name: "Cache check" };
     await POST(postJson({ brief: repeat, today: "2026-10-20" }));
     const second = await (await POST(postJson({ brief: repeat, today: "2026-10-20" }))).json();
     expect(draftPlan).toHaveBeenCalledTimes(1);
-    expect(second.source).toBe("mock");
+    expect(second.source).toBe("offline");
   });
 
   it("rejects an invalid brief with 400", async () => {
@@ -75,7 +75,7 @@ describe("POST /api/plan", () => {
 
   it("returns 422 when the draft can't be turned into a plan", async () => {
     planner.mockReturnValue({
-      ...mockPlanner,
+      ...offlinePlanner,
       draftPlan: async () => ({ ...fallbackDraft(weddingBrief), budget: [] }),
     });
     const brief = { ...weddingBrief, name: "Unbuildable draft check" };

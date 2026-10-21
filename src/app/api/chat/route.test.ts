@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockPlanner } from "@/lib/ai/mock";
+import { offlinePlanner } from "@/lib/ai/offline";
 import { getPlanner } from "@/lib/ai/planner";
 import { postJson, weddingPlan } from "@/test/fixtures";
 import { POST } from "./route";
@@ -11,7 +11,7 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 const planner = vi.mocked(getPlanner);
 
 beforeEach(() => {
-  planner.mockReturnValue(mockPlanner);
+  planner.mockReturnValue(offlinePlanner);
 });
 
 const ask = (text: string) => postJson({ plan: weddingPlan, messages: [{ role: "user", text }] });
@@ -25,7 +25,7 @@ describe("POST /api/chat", () => {
 
   it("drops proposed changes that could not be applied to this plan", async () => {
     planner.mockReturnValue({
-      ...mockPlanner,
+      ...offlinePlanner,
       chat: async () => ({
         reply: "Done",
         changes: [

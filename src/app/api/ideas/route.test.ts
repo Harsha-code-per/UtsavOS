@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockPlanner } from "@/lib/ai/mock";
+import { offlinePlanner } from "@/lib/ai/offline";
 import { getPlanner } from "@/lib/ai/planner";
 import { AiError } from "@/lib/ai/types";
 import { postJson, weddingBrief } from "@/test/fixtures";
@@ -12,13 +12,13 @@ vi.mock("@/lib/ai/planner", async (importOriginal) => ({
 const planner = vi.mocked(getPlanner);
 
 beforeEach(() => {
-  planner.mockReturnValue(mockPlanner);
+  planner.mockReturnValue(offlinePlanner);
 });
 
 describe("POST /api/ideas", () => {
   it("returns personalized ideas with their sources", async () => {
     planner.mockReturnValue({
-      ...mockPlanner,
+      ...offlinePlanner,
       ideas: async () => ({
         ideas: [{ kind: "menu", title: "Irani chai", description: "With Osmania biscuits." }],
         sources: [{ uri: "https://example.com", title: "Example" }],
@@ -30,8 +30,8 @@ describe("POST /api/ideas", () => {
   });
 
   it("serves repeated requests for the same brief from cache", async () => {
-    const ideas = vi.fn(mockPlanner.ideas);
-    planner.mockReturnValue({ ...mockPlanner, ideas });
+    const ideas = vi.fn(offlinePlanner.ideas);
+    planner.mockReturnValue({ ...offlinePlanner, ideas });
     const brief = { ...weddingBrief, name: "Ideas cache check" };
     await POST(postJson({ brief }));
     await POST(postJson({ brief }));
@@ -45,7 +45,7 @@ describe("POST /api/ideas", () => {
 
   it("returns 502 with a friendly message when Gemini fails", async () => {
     planner.mockReturnValue({
-      ...mockPlanner,
+      ...offlinePlanner,
       ideas: () => Promise.reject(new AiError("Gemini is busy. Try again in a minute.")),
     });
     const brief = { ...weddingBrief, name: "Ideas failure check" };

@@ -4,7 +4,7 @@ import type { Brief } from "@/lib/domain/schema";
 import { fallbackDraft } from "@/lib/domain/templates";
 import { nth } from "@/test/fixtures";
 import { createGeminiPlanner, type Generate } from "./gemini";
-import { mockPlanner } from "./mock";
+import { offlinePlanner } from "./offline";
 import { getPlanner, modelChain } from "./planner";
 import { AiError } from "./types";
 
@@ -178,9 +178,9 @@ describe("ideas without Search grounding", () => {
   });
 });
 
-describe("mockPlanner", () => {
+describe("offlinePlanner", () => {
   it("returns the template draft so the app works offline and in end-to-end tests", async () => {
-    expect(await mockPlanner.draftPlan(brief, "2026-10-20")).toEqual(fallbackDraft(brief));
+    expect(await offlinePlanner.draftPlan(brief, "2026-10-20")).toEqual(fallbackDraft(brief));
   });
 
   it("proposes moving spare money into an overspent category", async () => {
@@ -188,7 +188,7 @@ describe("mockPlanner", () => {
       ...plan,
       budget: plan.budget.map((l) => (l.id === "decor" ? { ...l, spent: l.allocated + 8000 } : l)),
     };
-    const { changes } = await mockPlanner.chat(overspent, [
+    const { changes } = await offlinePlanner.chat(overspent, [
       { role: "user", text: "fix my budget" },
     ]);
     expect(changes[0]).toMatchObject({ op: "moveBudget", to: "decor", amount: 8000 });
@@ -196,8 +196,8 @@ describe("mockPlanner", () => {
 });
 
 describe("getPlanner", () => {
-  it("uses the mock when UTSAV_AI_MOCK=1, Gemini when a key is set, and nothing otherwise", () => {
-    expect(getPlanner({ UTSAV_AI_MOCK: "1" })?.source).toBe("mock");
+  it("uses the offline planner when UTSAV_AI_OFFLINE=1, Gemini when a key is set, and nothing otherwise", () => {
+    expect(getPlanner({ UTSAV_AI_OFFLINE: "1" })?.source).toBe("offline");
     expect(getPlanner({ GEMINI_API_KEY: "k" })?.source).toBe("gemini");
     expect(getPlanner({})).toBeNull();
   });
