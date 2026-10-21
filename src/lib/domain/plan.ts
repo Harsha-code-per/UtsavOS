@@ -43,19 +43,23 @@ export function sanitizeDraft(raw: unknown): PlanDraft | null {
   if (!parsed.success) return null;
   const source = parsed.data;
 
-  const pick = <K extends keyof typeof DRAFT_ITEMS>(key: K, prepare = (item: unknown) => item) =>
+  const pick = <T>(
+    key: keyof typeof DRAFT_ITEMS,
+    schema: z.ZodType<T>,
+    prepare = (x: unknown) => x,
+  ) =>
     asList(source[key])
       .flatMap((item) => {
-        const parsed = DRAFT_ITEMS[key].safeParse(prepare(item));
-        return parsed.success ? [parsed.data as z.infer<(typeof DRAFT_ITEMS)[K]>] : [];
+        const parsed = schema.safeParse(prepare(item));
+        return parsed.success ? [parsed.data] : [];
       })
       .slice(0, DRAFT_LIMITS[key]);
 
   const draft = {
-    budget: pick("budget"),
-    milestones: pick("milestones"),
-    runSheet: pick("runSheet"),
-    vendors: pick("vendors", (item) => {
+    budget: pick("budget", DRAFT_ITEMS.budget),
+    milestones: pick("milestones", DRAFT_ITEMS.milestones),
+    runSheet: pick("runSheet", DRAFT_ITEMS.runSheet),
+    vendors: pick("vendors", DRAFT_ITEMS.vendors, (item) => {
       const vendor = LooseObject.safeParse(item);
       if (!vendor.success) return item;
       const questions = asList(vendor.data.questions)
@@ -63,7 +67,7 @@ export function sanitizeDraft(raw: unknown): PlanDraft | null {
         .slice(0, 6);
       return { ...vendor.data, questions };
     }),
-    ideas: pick("ideas"),
+    ideas: pick("ideas", DRAFT_ITEMS.ideas),
   };
   return draft.budget.length ? draft : null;
 }

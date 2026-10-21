@@ -103,10 +103,7 @@ const mergeTraditions = (current: string[], extra: string[]) =>
 /** Applies a quick-fill patch: numbers become text, traditions are merged. */
 export function applyPatch(form: BriefForm, patch: BriefPatch): BriefForm {
   const { guests, budget, traditions, ...rest } = patch;
-  const next: BriefForm = { ...form };
-  for (const [key, value] of Object.entries(rest)) {
-    if (isField(key)) Object.assign(next, { [key]: value });
-  }
+  const next: BriefForm = { ...form, ...rest };
   if (guests !== undefined) next.guests = String(guests);
   if (budget !== undefined) next.budget = String(budget);
   if (traditions) next.traditions = mergeTraditions(form.traditions, traditions);

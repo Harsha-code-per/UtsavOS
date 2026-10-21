@@ -120,6 +120,7 @@ function FreshIdeas({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
 export function IdeasPanel({ plan, onChange }: { plan: Plan; onChange: ChangePlan }) {
   return (
     <div className={panel.stack}>
+      <h2 className="visually-hidden">Ideas in your plan</h2>
       <ul className={styles.ideas}>
         {plan.ideas.map((idea) => (
           <IdeaCard key={idea.id} idea={idea} />

@@ -36,10 +36,13 @@ function fold(line: string): string {
 }
 
 function plusMinutes(time: string, minutes: number): string {
-  const [h, m] = time.split(":").map(Number) as [number, number];
+  const [h = 0, m = 0] = time.split(":").map(Number);
   const total = Math.min(h * 60 + m + minutes, 23 * 60 + 59);
   return `${String(Math.floor(total / 60)).padStart(2, "0")}${String(total % 60).padStart(2, "0")}`;
 }
+
+const locationField = (location?: string): [string, string][] =>
+  location ? [["LOCATION", escapeText(location)]] : [];
 
 function vevent(fields: [string, string][]): string[] {
   return ["BEGIN:VEVENT", ...fields.map(([k, v]) => `${k}:${v}`), "END:VEVENT"];
@@ -61,7 +64,7 @@ export function planToIcs(source: CalendarSource, now: Date): string {
       ["DTSTART;VALUE=DATE", compactDate(event.date)],
       ["DTEND;VALUE=DATE", compactDate(addDays(event.date, 1))],
       ["SUMMARY", escapeText(event.summary)],
-      ...(event.location ? [["LOCATION", escapeText(event.location)] as [string, string]] : []),
+      ...locationField(event.location),
     ]);
 
   const lines = [
