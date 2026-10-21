@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { nth } from "@/test/fixtures";
 import { applicableChanges, applyChange, buildPlan, sanitizeDraft } from "./plan";
 import { EVENT_TYPES, PlanSchema, type Brief } from "./schema";
 import { fallbackDraft } from "./templates";
@@ -38,7 +39,7 @@ describe("buildPlan", () => {
     expect(plan.budget.reduce((a, l) => a + l.allocated, 0)).toBe(2_500_000);
     expect(plan.milestones[0]).toMatchObject({ title: "Book venue", due: "2026-11-06" });
     expect(plan.vendors[0]).toMatchObject({ id: "decor", status: "todo", quote: null });
-    expect(plan.ideas[0]!.id).toBe("theme-marigold-moonlight");
+    expect(nth(plan.ideas, 0).id).toBe("theme-marigold-moonlight");
     expect(plan.updatedAt).toBe("2026-10-20T08:00:00.000Z");
   });
 
@@ -73,22 +74,23 @@ describe("fallbackDraft", () => {
 
 describe("applyChange", () => {
   const plan = buildPlan(brief, fallbackDraft(brief), ctx);
-  const [first, second] = plan.budget;
+  const first = nth(plan.budget, 0);
+  const second = nth(plan.budget, 1);
 
   it("moves budget without changing the total", () => {
     const next = applyChange(plan, {
       op: "moveBudget",
-      from: first!.id,
-      to: second!.id,
+      from: first.id,
+      to: second.id,
       amount: 1000,
     });
-    expect(next.budget[0]!.allocated).toBe(first!.allocated - 1000);
-    expect(next.budget[1]!.allocated).toBe(second!.allocated + 1000);
+    expect(nth(next.budget, 0).allocated).toBe(first.allocated - 1000);
+    expect(nth(next.budget, 1).allocated).toBe(second.allocated + 1000);
   });
 
   it("logs spending against a category", () => {
-    const next = applyChange(plan, { op: "logSpend", id: first!.id, amount: 5000 });
-    expect(next.budget[0]!.spent).toBe(5000);
+    const next = applyChange(plan, { op: "logSpend", id: first.id, amount: 5000 });
+    expect(nth(next.budget, 0).spent).toBe(5000);
   });
 
   it("adds a milestone in date order and refuses dates after the event", () => {
@@ -98,15 +100,15 @@ describe("applyChange", () => {
       due: "2027-02-10",
     });
     const index = next.milestones.findIndex((m) => m.title === "Sangeet rehearsal");
-    expect(next.milestones[index + 1]!.due >= "2027-02-10").toBe(true);
+    expect(nth(next.milestones, index + 1).due >= "2027-02-10").toBe(true);
     expect(() =>
       applyChange(plan, { op: "addMilestone", title: "Late", due: "2027-03-01" }),
     ).toThrow(/after the event/i);
   });
 
   it("toggles a milestone", () => {
-    const id = plan.milestones[0]!.id;
-    expect(applyChange(plan, { op: "toggleMilestone", id }).milestones[0]!.done).toBe(true);
+    const id = nth(plan.milestones, 0).id;
+    expect(nth(applyChange(plan, { op: "toggleMilestone", id }).milestones, 0).done).toBe(true);
   });
 
   it("adds a vendor and updates its booking status and quote", () => {
@@ -137,7 +139,7 @@ describe("applyChange", () => {
     const before = JSON.stringify(plan);
     const next = applyChange(
       plan,
-      { op: "logSpend", id: first!.id, amount: 1 },
+      { op: "logSpend", id: first.id, amount: 1 },
       new Date("2026-10-21T00:00:00Z"),
     );
     expect(next.updatedAt).toBe("2026-10-21T00:00:00.000Z");
@@ -152,21 +154,22 @@ describe("applyChange", () => {
 
 describe("applicableChanges", () => {
   const plan = buildPlan(brief, fallbackDraft(brief), ctx);
-  const [first, second] = plan.budget;
+  const first = nth(plan.budget, 0);
+  const second = nth(plan.budget, 1);
 
   it("keeps changes that apply in order and drops ones that don't", () => {
     const changes = [
-      { op: "logSpend", id: first!.id, amount: 5000 },
+      { op: "logSpend", id: first.id, amount: 5000 },
       { op: "toggleMilestone", id: "no-such-task" },
       { op: "addMilestone", title: "Late", due: "2027-03-01" },
-      { op: "moveBudget", from: first!.id, to: second!.id, amount: 1000 },
+      { op: "moveBudget", from: first.id, to: second.id, amount: 1000 },
     ] as const;
     expect(applicableChanges(plan, [...changes])).toEqual([changes[0], changes[3]]);
   });
 
   it("checks each change against the plan as the earlier ones left it", () => {
-    const all = first!.allocated;
-    const move = { op: "moveBudget", from: first!.id, to: second!.id, amount: all } as const;
+    const all = first.allocated;
+    const move = { op: "moveBudget", from: first.id, to: second.id, amount: all } as const;
     expect(applicableChanges(plan, [move, move])).toEqual([move]);
   });
 });

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "@/lib/api/client";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { IdeasPanel } from "./IdeasPanel";
 
 vi.mock("@/lib/api/client", async (importOriginal) => ({
@@ -23,7 +23,7 @@ beforeEach(() => {
 describe("IdeasPanel", () => {
   it("shows the plan's ideas", () => {
     render(<IdeasPanel plan={weddingPlan} onChange={vi.fn()} />);
-    expect(screen.getByText(weddingPlan.ideas[0]!.title)).toBeInTheDocument();
+    expect(screen.getByText(nth(weddingPlan.ideas, 0).title)).toBeInTheDocument();
   });
 
   it("fetches local ideas with sources and adds one to the plan", async () => {

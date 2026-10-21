@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { describeChange, formatDate, formatMoney, parseAmount } from "./format";
 
 describe("parseAmount", () => {
@@ -27,19 +27,20 @@ describe("formatDate", () => {
 });
 
 describe("describeChange", () => {
-  const [first, second] = weddingPlan.budget;
-  const milestone = weddingPlan.milestones[0]!;
-  const vendor = weddingPlan.vendors[0]!;
+  const first = nth(weddingPlan.budget, 0);
+  const second = nth(weddingPlan.budget, 1);
+  const milestone = nth(weddingPlan.milestones, 0);
+  const vendor = nth(weddingPlan.vendors, 0);
 
   it("describes each kind of change in plain words, using names rather than ids", () => {
     expect(
       describeChange(
-        { op: "moveBudget", from: first!.id, to: second!.id, amount: 25000 },
+        { op: "moveBudget", from: first.id, to: second.id, amount: 25000 },
         weddingPlan,
       ),
-    ).toBe(`Move ₹25,000 from ${first!.category} to ${second!.category}`);
-    expect(describeChange({ op: "logSpend", id: first!.id, amount: 5000 }, weddingPlan)).toBe(
-      `Log ₹5,000 spent on ${first!.category}`,
+    ).toBe(`Move ₹25,000 from ${first.category} to ${second.category}`);
+    expect(describeChange({ op: "logSpend", id: first.id, amount: 5000 }, weddingPlan)).toBe(
+      `Log ₹5,000 spent on ${first.category}`,
     );
     expect(
       describeChange(

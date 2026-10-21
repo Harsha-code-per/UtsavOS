@@ -2,13 +2,15 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { PlanChange } from "@/lib/domain/schema";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { ChatTurn } from "./ChatTurn";
 import type { Turn } from "./useCoPlannerChat";
 
-const [venue, catering] = weddingPlan.budget;
+const venue = nth(weddingPlan.budget, 0);
+
+const catering = nth(weddingPlan.budget, 1);
 const changes: PlanChange[] = [
-  { op: "moveBudget", from: venue!.id, to: catering!.id, amount: 10000 },
+  { op: "moveBudget", from: venue.id, to: catering.id, amount: 10000 },
   { op: "addMilestone", title: "Mehendi trial", due: "2027-02-01" },
 ];
 const proposal: Turn = { id: "t1", role: "model", text: "Here's a plan.", changes };
@@ -30,14 +32,14 @@ describe("ChatTurn", () => {
   it("describes each proposed change in plain words and applies them together", async () => {
     const { onApply } = renderTurn(proposal);
     expect(
-      screen.getByText(`Move ₹10,000 from ${venue!.category} to ${catering!.category}`),
+      screen.getByText(`Move ₹10,000 from ${venue.category} to ${catering.category}`),
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Apply 2 changes" }));
     expect(onApply).toHaveBeenCalledWith(changes);
   });
 
   it("can be dismissed", async () => {
-    const { onDismiss } = renderTurn({ ...proposal, changes: [changes[1]!] });
+    const { onDismiss } = renderTurn({ ...proposal, changes: [nth(changes, 1)] });
     await userEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(onDismiss).toHaveBeenCalled();
   });

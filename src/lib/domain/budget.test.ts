@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { nth } from "@/test/fixtures";
 import { allocateBudget, moveBudget, summarizeBudget } from "./budget";
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
@@ -32,7 +33,7 @@ describe("allocateBudget", () => {
       { category: "Decor", percent: 15 },
     ]);
     expect(sum(lines.map((l) => l.allocated))).toBe(2_500_000);
-    expect(lines[0]!.allocated).toBe(1_000_000);
+    expect(nth(lines, 0).allocated).toBe(1_000_000);
   });
 
   it("merges duplicate categories and gives each line a stable unique id", () => {
@@ -42,7 +43,7 @@ describe("allocateBudget", () => {
       { category: "Food & Drinks", percent: 80 },
     ]);
     expect(lines.map((l) => l.id)).toEqual(["decor", "food-drinks"]);
-    expect(lines[0]!.allocated).toBe(200);
+    expect(nth(lines, 0).allocated).toBe(200);
   });
 
   it("rejects an empty split or a non-positive total", () => {
@@ -81,7 +82,7 @@ describe("moveBudget", () => {
 
   it("does not mutate the input", () => {
     moveBudget(lines, { from: "ent", to: "decor", amount: 25 });
-    expect(lines[0]!.allocated).toBe(125);
+    expect(nth(lines, 0).allocated).toBe(125);
   });
 
   it("refuses moves that are impossible", () => {

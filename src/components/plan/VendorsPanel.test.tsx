@@ -1,17 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { VendorsPanel } from "./VendorsPanel";
 
-const vendor = weddingPlan.vendors[0]!;
+const vendor = nth(weddingPlan.vendors, 0);
 
 describe("VendorsPanel", () => {
   it("updates a vendor's status straight away", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn().mockReturnValue(null);
     render(<VendorsPanel plan={weddingPlan} onChange={onChange} />);
-    await user.selectOptions(screen.getAllByLabelText("Status")[0]!, "booked");
+    await user.selectOptions(nth(screen.getAllByLabelText("Status"), 0), "booked");
     expect(onChange).toHaveBeenCalledWith({
       op: "setVendorStatus",
       id: vendor.id,
@@ -23,8 +23,8 @@ describe("VendorsPanel", () => {
     const user = userEvent.setup();
     const onChange = vi.fn().mockReturnValue(null);
     render(<VendorsPanel plan={weddingPlan} onChange={onChange} />);
-    await user.type(screen.getAllByLabelText("Quote (INR)")[0]!, "6,50,000");
-    await user.click(screen.getAllByRole("button", { name: "Save quote" })[0]!);
+    await user.type(nth(screen.getAllByLabelText("Quote (INR)"), 0), "6,50,000");
+    await user.click(nth(screen.getAllByRole("button", { name: "Save quote" }), 0));
     expect(onChange).toHaveBeenCalledWith({
       op: "setVendorStatus",
       id: vendor.id,
@@ -36,7 +36,7 @@ describe("VendorsPanel", () => {
 
   it("shows the questions to ask each vendor", () => {
     render(<VendorsPanel plan={weddingPlan} onChange={vi.fn()} />);
-    expect(screen.getByText(vendor.questions[0]!)).toBeInTheDocument();
+    expect(screen.getByText(nth(vendor.questions, 0))).toBeInTheDocument();
   });
 
   it("adds a vendor, and explains why when it can't", async () => {

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider } from "@/components/app/AuthProvider";
 import { saveLocalPlan } from "@/lib/store/local";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { PlanDashboard } from "./PlanDashboard";
 import { PlanList } from "./PlanList";
 
@@ -38,7 +38,7 @@ describe("PlanDashboard", () => {
     saveLocalPlan(weddingPlan);
     renderWithAuth(<PlanDashboard id={weddingPlan.id} starter={false} />);
     await user.click(screen.getByRole("tab", { name: "Timeline" }));
-    await user.click(screen.getByLabelText(weddingPlan.milestones[0]!.title));
+    await user.click(screen.getByLabelText(nth(weddingPlan.milestones, 0).title));
     expect(screen.getByText(`1/${weddingPlan.milestones.length}`)).toBeInTheDocument();
     expect(
       JSON.parse(localStorage.getItem("utsavos.plans")!)[weddingPlan.id].milestones[0].done,

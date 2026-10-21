@@ -1,10 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { TimelinePanel } from "./TimelinePanel";
 
-const first = weddingPlan.milestones[0]!;
+const first = nth(weddingPlan.milestones, 0);
 
 describe("TimelinePanel", () => {
   it("toggles a task when its checkbox is used", async () => {
@@ -44,7 +44,7 @@ describe("TimelinePanel", () => {
   it("shows the run sheet for the day", () => {
     render(<TimelinePanel plan={weddingPlan} onChange={vi.fn()} />);
     const sheet = screen.getByRole("region", { name: /Run sheet/ });
-    expect(within(sheet).getByText(weddingPlan.runSheet[0]!.title)).toBeInTheDocument();
+    expect(within(sheet).getByText(nth(weddingPlan.runSheet, 0).title)).toBeInTheDocument();
   });
 
   it("downloads an .ics calendar file", async () => {

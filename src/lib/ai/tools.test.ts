@@ -8,7 +8,7 @@ describe("planTools", () => {
     const names = planTools.map((t) => t.name);
     expect(names).toEqual(PlanChangeSchema.options.map((o) => o.shape.op.value));
     for (const tool of planTools) {
-      expect(tool.description!.length).toBeGreaterThan(10);
+      expect(tool.description?.length).toBeGreaterThan(10);
       expect(tool.parametersJsonSchema).toMatchObject({ type: "object" });
       expect(JSON.stringify(tool.parametersJsonSchema)).not.toContain("$schema");
       expect(JSON.stringify(tool.parametersJsonSchema)).not.toContain('"op"');

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { nth } from "@/test/fixtures";
 import { addDays, daysUntil, scheduleMilestones, trustedToday } from "./timeline";
 
 describe("daysUntil", () => {
@@ -21,7 +22,10 @@ describe("scheduleMilestones", () => {
   const today = "2026-10-20";
 
   it("dates each milestone by counting back from the event", () => {
-    const [m] = scheduleMilestones(event, today, [{ title: "Final headcount", daysBefore: 14 }]);
+    const m = nth(
+      scheduleMilestones(event, today, [{ title: "Final headcount", daysBefore: 14 }]),
+      0,
+    );
     expect(m).toEqual({
       id: "final-headcount",
       title: "Final headcount",
@@ -39,13 +43,16 @@ describe("scheduleMilestones", () => {
   });
 
   it("pulls milestones that would already be overdue forward to today", () => {
-    const [m] = scheduleMilestones(event, today, [{ title: "Book venue", daysBefore: 200 }]);
-    expect(m!.due).toBe(today);
+    const m = nth(scheduleMilestones(event, today, [{ title: "Book venue", daysBefore: 200 }]), 0);
+    expect(m.due).toBe(today);
   });
 
   it("never schedules after the event, whatever the model returns", () => {
-    const [m] = scheduleMilestones(event, today, [{ title: "Thank-you notes", daysBefore: -3 }]);
-    expect(m!.due).toBe(event);
+    const m = nth(
+      scheduleMilestones(event, today, [{ title: "Thank-you notes", daysBefore: -3 }]),
+      0,
+    );
+    expect(m.due).toBe(event);
   });
 
   it("gives repeated titles distinct ids", () => {

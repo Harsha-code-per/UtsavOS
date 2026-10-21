@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { applyChange } from "@/lib/domain/plan";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { PlanHeader } from "./PlanHeader";
 
 beforeEach(() => {
@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 const stat = (label: string) =>
-  within(screen.getByText(label).parentElement!).getByRole("definition");
+  within(screen.getByText(label).closest("div") ?? document.body).getByRole("definition");
 
 describe("PlanHeader", () => {
   it("summarises the event and counts down to it", () => {
@@ -26,12 +26,12 @@ describe("PlanHeader", () => {
   });
 
   it("reports budget used, tasks done and vendors booked", () => {
-    const [line] = weddingPlan.budget;
-    const [task] = weddingPlan.milestones;
-    const [vendor] = weddingPlan.vendors;
-    let plan = applyChange(weddingPlan, { op: "logSpend", id: line!.id, amount: 250_000 });
-    plan = applyChange(plan, { op: "toggleMilestone", id: task!.id });
-    plan = applyChange(plan, { op: "setVendorStatus", id: vendor!.id, status: "booked" });
+    const line = nth(weddingPlan.budget, 0);
+    const task = nth(weddingPlan.milestones, 0);
+    const vendor = nth(weddingPlan.vendors, 0);
+    let plan = applyChange(weddingPlan, { op: "logSpend", id: line.id, amount: 250_000 });
+    plan = applyChange(plan, { op: "toggleMilestone", id: task.id });
+    plan = applyChange(plan, { op: "setVendorStatus", id: vendor.id, status: "booked" });
     render(<PlanHeader plan={plan} saveState="saved" />);
 
     expect(stat("Budget used")).toHaveTextContent("10%");

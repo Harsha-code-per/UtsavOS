@@ -1,23 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { LogPaymentForm } from "./LogPaymentForm";
 
-const [, catering] = weddingPlan.budget;
+const catering = nth(weddingPlan.budget, 1);
 
 describe("LogPaymentForm", () => {
   it("logs the typed amount against the chosen category and confirms it", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn(() => null);
     render(<LogPaymentForm plan={weddingPlan} onChange={onChange} />);
-    await user.selectOptions(screen.getByLabelText("Category"), catering!.id);
+    await user.selectOptions(screen.getByLabelText("Category"), catering.id);
     await user.type(screen.getByLabelText(/Amount/), "1,20,000");
     await user.click(screen.getByRole("button", { name: "Log payment" }));
 
-    expect(onChange).toHaveBeenCalledWith({ op: "logSpend", id: catering!.id, amount: 120000 });
+    expect(onChange).toHaveBeenCalledWith({ op: "logSpend", id: catering.id, amount: 120000 });
     expect(screen.getByRole("status")).toHaveTextContent(
-      `Logged ₹1,20,000 on ${catering!.category}.`,
+      `Logged ₹1,20,000 on ${catering.category}.`,
     );
     expect(screen.getByLabelText(/Amount/)).toHaveValue("");
   });

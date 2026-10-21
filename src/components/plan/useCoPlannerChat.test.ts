@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "@/lib/api/client";
 import type { PlanChange } from "@/lib/domain/schema";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { useCoPlannerChat } from "./useCoPlannerChat";
 
 vi.mock("@/lib/api/client", async (importOriginal) => ({
@@ -43,9 +43,10 @@ describe("useCoPlannerChat", () => {
     const { result } = renderHook(() => useCoPlannerChat(weddingPlan));
     await act(() => result.current.send("one"));
     await act(() => result.current.send("two"));
-    const [, first, , second] = result.current.turns;
+    const first = nth(result.current.turns, 1);
+    const second = nth(result.current.turns, 3);
 
-    act(() => result.current.settle(first!.id, { kind: "applied" }));
+    act(() => result.current.settle(first.id, { kind: "applied" }));
     expect(result.current.turns[1]?.outcome).toEqual({ kind: "applied" });
     expect(result.current.turns[3]?.outcome).toBeUndefined();
     expect(second?.id).not.toBe(first?.id);

@@ -38,13 +38,14 @@ export function useQuickFill(fill: (patch: BriefPatch) => number, fromDescriptio
   );
 
   // Arriving from the landing page with a description: fill the form straight away.
+  // The update is queued so the effect itself never sets state synchronously.
   useEffect(() => {
     if (!fromDescription) return;
     const text = takeDescription();
     if (!text) return;
-    void Promise.resolve().then(() => {
+    queueMicrotask(() => {
       setDescription(text);
-      return run(text);
+      void run(text);
     });
   }, [fromDescription, run]);
 

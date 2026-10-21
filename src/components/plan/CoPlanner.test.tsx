@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "@/lib/api/client";
-import { weddingPlan } from "@/test/fixtures";
+import { nth, weddingPlan } from "@/test/fixtures";
 import { CoPlanner } from "./CoPlanner";
 
 vi.mock("@/lib/api/client", async (importOriginal) => ({
@@ -11,8 +11,10 @@ vi.mock("@/lib/api/client", async (importOriginal) => ({
 }));
 const chat = vi.mocked(api.chat);
 
-const [venue, catering] = weddingPlan.budget;
-const move = { op: "moveBudget" as const, from: venue!.id, to: catering!.id, amount: 5000 };
+const venue = nth(weddingPlan.budget, 0);
+
+const catering = nth(weddingPlan.budget, 1);
+const move = { op: "moveBudget" as const, from: venue.id, to: catering.id, amount: 5000 };
 
 beforeEach(() => {
   chat.mockReset();
@@ -30,7 +32,7 @@ describe("CoPlanner", () => {
 
     expect(await screen.findByText("Shift some venue money to catering.")).toBeInTheDocument();
     expect(
-      screen.getByText(`Move ₹5,000 from ${venue!.category} to ${catering!.category}`),
+      screen.getByText(`Move ₹5,000 from ${venue.category} to ${catering.category}`),
     ).toBeInTheDocument();
     expect(onChange).not.toHaveBeenCalled();
 

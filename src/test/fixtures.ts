@@ -31,3 +31,10 @@ export function postJson(body: unknown, address = `198.51.100.${++ip % 250}`): R
     body: JSON.stringify(body),
   });
 }
+
+/** The item at `index`, failing the test with a clear message if the fixture is shorter. */
+export function nth<T>(items: readonly T[], index: number): T {
+  const item = items[index];
+  if (item === undefined) throw new Error(`Expected an item at index ${index}`);
+  return item;
+}
