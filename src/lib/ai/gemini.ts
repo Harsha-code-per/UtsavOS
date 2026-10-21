@@ -39,8 +39,9 @@ interface GenerateResult {
 export type Generate = (params: GenerateContentParameters) => Promise<GenerateResult>;
 type Call = (params: Omit<GenerateContentParameters, "model">) => Promise<GenerateResult>;
 
-// A healthy model answers in seconds; one with a fallback behind it gets a short leash.
-const FALLBACK_ATTEMPT_MS = 12_000;
+// A full plan takes a healthy Flash model about 15 s; one with a fallback behind it is cut off
+// at 25 s so the next model still has time.
+const FALLBACK_ATTEMPT_MS = 25_000;
 const TOTAL_BUDGET_MS = 50_000; // stays inside the routes' 60 s maxDuration
 const MIN_ATTEMPT_MS = 5_000;
 // Errors another model might not have: retired (404), timeout, rate limit, overload.

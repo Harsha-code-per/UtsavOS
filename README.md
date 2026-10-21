@@ -26,7 +26,7 @@ All model calls live in [`src/lib/ai/gemini.ts`](src/lib/ai/gemini.ts), behind f
 - **`/api/chat`**: function calling with seven typed tools (`moveBudget`, `addMilestone`, `setVendorStatus`…).
 - **`/api/ideas`**: Google Search grounding with cited sources, falling back to structured ideas when grounding is unavailable.
 
-Requests go through a model chain (Gemini 3.8 Flash, then Flash-Lite) inside a 50-second budget. If both fail, `/api/plan` returns a starter plan from templates that can be redrafted later.
+Requests go through a model chain (Gemini 3.5 Flash, then Flash-Lite) inside a 50-second budget, and `GEMINI_MODEL` can reorder it. If both fail, `/api/plan` returns a starter plan from templates that can be redrafted later.
 
 ## Design decisions
 

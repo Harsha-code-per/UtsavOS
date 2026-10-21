@@ -3,7 +3,7 @@ import { json } from "@/lib/api/http";
 import { aiRoute } from "@/lib/api/route";
 import { trustedToday } from "@/lib/domain/timeline";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 const Body = z.object({
   description: z.string().trim().min(3).max(1000),

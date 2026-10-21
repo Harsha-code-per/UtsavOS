@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { attemptTimeout } from "./gemini";
 
 describe("attemptTimeout", () => {
-  it("keeps a short leash on models that have a fallback after them", () => {
-    expect(attemptTimeout({ remaining: 50_000, isLast: false })).toBe(12_000);
+  it("gives a model with a fallback behind it enough time to draft a full plan", () => {
+    // A full wedding plan takes Gemini 3.5 Flash about 15 s.
+    expect(attemptTimeout({ remaining: 50_000, isLast: false })).toBe(25_000);
   });
 
   it("gives the last model all the time that is left", () => {
