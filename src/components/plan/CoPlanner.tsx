@@ -5,7 +5,7 @@ import type { Plan } from "@/lib/domain/schema";
 import type { ChangePlan } from "./change-plan";
 import { ChatTurn } from "./ChatTurn";
 import styles from "./CoPlanner.module.css";
-import { useCoPlannerChat } from "./useCoPlannerChat";
+import type { CoPlannerChat } from "./useCoPlannerChat";
 import { useSpeechInput } from "./useSpeechInput";
 
 const SUGGESTIONS: Record<Plan["brief"]["type"], string[]> = {
@@ -74,13 +74,13 @@ function Composer({ value, busy, listening, onChange, onListen, onSubmit }: Comp
 interface Props {
   plan: Plan;
   onChange: ChangePlan;
-  /** A question sent from elsewhere on the page (e.g. "rebalance" on the budget). */
-  question: { text: string; key: number } | null;
+  /** The conversation, owned by the dashboard so other panels can ask questions too. */
+  chat: CoPlannerChat;
 }
 
 /** Chat with Gemini about the plan; proposed changes need the person's approval. */
-export function CoPlanner({ plan, onChange, question }: Props) {
-  const { turns, busy, error, setError, send, settle } = useCoPlannerChat(plan);
+export function CoPlanner({ plan, onChange, chat }: Props) {
+  const { turns, busy, error, setError, send, settle } = chat;
   const [input, setInput] = useState("");
   const speech = useSpeechInput({
     language: plan.brief.language,
@@ -88,10 +88,6 @@ export function CoPlanner({ plan, onChange, question }: Props) {
     onError: setError,
   });
   const logRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (question) void Promise.resolve().then(() => send(question.text));
-  }, [question, send]);
 
   useEffect(() => {
     const log = logRef.current;
@@ -110,7 +106,7 @@ export function CoPlanner({ plan, onChange, question }: Props) {
         <span>Gemini</span>
       </div>
 
-      <div ref={logRef} className={styles.log} role="log" aria-label="Conversation">
+      <div ref={logRef} className={styles.log} role="log" aria-label="Conversation" tabIndex={0}>
         {turns.length === 0 && (
           <p className={styles.hello}>
             Ask anything about this plan, in any language. I can move budget, add tasks, update

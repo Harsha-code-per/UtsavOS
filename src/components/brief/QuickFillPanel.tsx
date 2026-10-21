@@ -11,7 +11,7 @@ interface Props {
 /** Describe the celebration in any language; Gemini fills the form. */
 export function QuickFillPanel({ description, status, onDescription, onRun }: Props) {
   return (
-    <aside className={styles.side} aria-labelledby="quick-title">
+    <aside aria-labelledby="quick-title">
       <h1 className={styles.title}>Tell us about the celebration.</h1>
       <p className={styles.lead}>
         Fill in the brief, or describe it and let Gemini fill it in. You can change anything later.

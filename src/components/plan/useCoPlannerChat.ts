@@ -29,7 +29,7 @@ export function useCoPlannerChat(plan: Plan) {
   useEffect(() => {
     planRef.current = plan;
     turnsRef.current = turns;
-  });
+  }, [plan, turns]);
 
   const send = useCallback(async (text: string) => {
     const message = text.trim();
@@ -58,3 +58,5 @@ export function useCoPlannerChat(plan: Plan) {
 
   return { turns, busy, error, setError, send, settle };
 }
+
+export type CoPlannerChat = ReturnType<typeof useCoPlannerChat>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Brief } from "@/lib/domain/schema";
 
 const SPEECH_LANG: Record<Brief["language"], string> = {
@@ -23,6 +23,7 @@ interface Recognition {
   onend: (() => void) | null;
   onerror: (() => void) | null;
   start: () => void;
+  abort: () => void;
 }
 
 // The Web Speech API isn't in TypeScript's DOM types yet; Chrome and Safari still prefix it.
@@ -47,6 +48,10 @@ interface Options {
 /** Browser speech-to-text in the plan's language, where the browser supports it. */
 export function useSpeechInput({ language, onText, onError }: Options) {
   const [listening, setListening] = useState(false);
+  const active = useRef<Recognition | null>(null);
+
+  // Stop listening if the co-planner goes away mid-sentence.
+  useEffect(() => () => active.current?.abort(), []);
 
   function listen() {
     const recognition = createRecognition();
@@ -59,7 +64,11 @@ export function useSpeechInput({ language, onText, onError }: Options) {
     recognition.onresult = (e) => onText(e.results[0]?.[0]?.transcript ?? "");
     recognition.onerror = () =>
       onError("Couldn't hear that. Check microphone access and try again.");
-    recognition.onend = () => setListening(false);
+    recognition.onend = () => {
+      active.current = null;
+      setListening(false);
+    };
+    active.current = recognition;
     setListening(true);
     recognition.start();
   }

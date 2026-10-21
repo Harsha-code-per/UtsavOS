@@ -10,6 +10,7 @@ class FakeRecognition {
   onend: (() => void) | null = null;
   onerror: (() => void) | null = null;
   start = vi.fn();
+  abort = vi.fn();
   constructor() {
     FakeRecognition.last = this;
   }
@@ -56,6 +57,14 @@ describe("useSpeechInput", () => {
     act(() => result.current.listen());
     act(() => recognition().onerror?.());
     expect(onError).toHaveBeenCalledWith(expect.stringMatching(/microphone access/));
+  });
+
+  it("stops listening when the co-planner unmounts", () => {
+    vi.stubGlobal("SpeechRecognition", FakeRecognition);
+    const { result, unmount } = setup("en");
+    act(() => result.current.listen());
+    unmount();
+    expect(recognition().abort).toHaveBeenCalled();
   });
 
   it("says so when the browser has no speech recognition", () => {

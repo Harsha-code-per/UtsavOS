@@ -48,7 +48,8 @@ export function Tabs({ active, onChange }: Props) {
           role="tab"
           id={`tab-${tab.id}`}
           aria-selected={active === tab.id}
-          aria-controls={`panel-${tab.id}`}
+          // Only the active panel is rendered, so only its tab points at it.
+          aria-controls={active === tab.id ? `panel-${tab.id}` : undefined}
           tabIndex={active === tab.id ? 0 : -1}
           className={styles.tab}
           onClick={() => onChange(tab.id)}
